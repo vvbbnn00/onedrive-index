@@ -8,7 +8,7 @@ module.exports = {
   trailingSlash: true,
   generateBuildId: async () => {
     try {
-      return fs.readFileSync(path.join('HEAD'), 'utf-8').trim();
+      return fs.readFileSync('HEAD', 'utf-8').trim();
     } catch (error) {
       console.error('Error generating build id:', error);
       return 'unknown-build-id';
