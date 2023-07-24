@@ -195,9 +195,9 @@ export async function getServerSideProps({ locale }) {
       installed: await checkInstalled(),
       apiConfig: {
         ...apiConfig,
-        clientSecret: addStarsAndTrim(apiConfig.clientSecret),
-        build_id: getBuildId()
-      }
+        clientSecret: addStarsAndTrim(apiConfig.clientSecret)
+      },
+      build_id: getBuildId()
     },
   }
 }
