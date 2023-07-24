@@ -60,6 +60,8 @@ const extensions = {
 
   c: icons.code,
   cpp: icons.code,
+  h: icons.code,
+  hpp: icons.code,
   js: icons.code,
   jsx: icons.code,
   java: icons.code,

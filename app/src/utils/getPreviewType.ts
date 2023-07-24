@@ -35,6 +35,8 @@ export const extensions = {
 
   c: preview.code,
   cpp: preview.code,
+  h: preview.code,
+  hpp:preview.code,
   js: preview.code,
   jsx: preview.code,
   java: preview.code,
@@ -101,6 +103,10 @@ export function getPreviewType(extension: string, flags?: { video?: boolean }): 
 export function getLanguageByFileName(filename: string): string {
   const extension = getExtension(filename)
   switch (extension) {
+    case 'h':
+      return 'c'
+    case 'hpp':
+      return 'cpp'
     case 'ts':
     case 'tsx':
       return 'typescript'
