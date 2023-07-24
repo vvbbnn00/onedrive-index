@@ -57,21 +57,26 @@ export async function getAccessToken(): Promise<string> {
   body.append('refresh_token', refreshToken)
   body.append('grant_type', 'refresh_token')
 
-  const resp = await axios.post(apiConfig.authApi, body, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  })
-
-  if ('access_token' in resp.data && 'refresh_token' in resp.data) {
-    const { expires_in, access_token, refresh_token } = resp.data
-    await storeOdAuthTokens({
-      accessToken: access_token,
-      accessTokenExpiry: parseInt(expires_in),
-      refreshToken: refresh_token,
+  try {
+    const resp = await axios.post(apiConfig.authApi, body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     })
-    console.log('Fetch new access token with stored refresh token.')
-    return access_token
+
+    if ('access_token' in resp.data && 'refresh_token' in resp.data) {
+      const { expires_in, access_token, refresh_token } = resp.data
+      await storeOdAuthTokens({
+        accessToken: access_token,
+        accessTokenExpiry: parseInt(expires_in),
+        refreshToken: refresh_token,
+      })
+      console.log('Fetch new access token with stored refresh token.')
+      return access_token
+    }
+  } catch (error: any) {
+    console.warn(error?.response?.data ?? 'Internal server error.');
+    return ''
   }
 
   return ''
@@ -237,28 +242,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
   // Whether path is root, which requires some special treatment
   const isRoot = requestPath === ''
-
   // Go for file raw download link, add CORS headers, and redirect to @microsoft.graph.downloadUrl
   // (kept here for backwards compatibility, and cache headers will be reverted to no-cache)
-  if (raw) {
-    await runCorsMiddleware(req, res)
-    res.setHeader('Cache-Control', 'no-cache')
+  try {
+    if (raw) {
+      await runCorsMiddleware(req, res)
+      res.setHeader('Cache-Control', 'no-cache')
 
-    const { data } = await axios.get(requestUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      params: {
-        // OneDrive international version fails when only selecting the downloadUrl (what a stupid bug)
-        select: 'id,@microsoft.graph.downloadUrl',
-      },
-    })
+      const { data } = await axios.get(requestUrl, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: {
+          // OneDrive international version fails when only selecting the downloadUrl (what a stupid bug)
+          select: 'id,@microsoft.graph.downloadUrl',
+        },
+      })
 
-    if ('@microsoft.graph.downloadUrl' in data) {
-      res.redirect(data['@microsoft.graph.downloadUrl'])
-    } else {
-      res.status(404).json({ error: 'No download url found.' })
+      if ('@microsoft.graph.downloadUrl' in data) {
+        res.redirect(data['@microsoft.graph.downloadUrl'])
+      } else {
+        res.status(404).json({ error: 'No download url found.' })
+      }
+      return
     }
+  } catch (error: any) {
+    res.status(error?.response?.code ?? 500).json({ error: error?.response?.data ?? 'Internal server error.' })
     return
   }
+
 
   // Querying current path identity (file or folder) and follow up query childrens in folder
   try {
@@ -281,6 +291,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ...(sort ? { $orderby: sort } : {}),
         },
       })
+      
+      delete folderData['@odata.context']
 
       // Extract next page token from full @odata.nextLink
       const nextPage = folderData['@odata.nextLink']

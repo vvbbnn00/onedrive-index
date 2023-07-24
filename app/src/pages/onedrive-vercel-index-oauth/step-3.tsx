@@ -88,7 +88,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
               />
             </div>
             <h3 className="mb-4 text-center text-xl font-medium">
-              {t('Welcome to your new onedrive-vercel-index 🎉')}
+              {t('Welcome to your new onedrive-docker-index 🎉')}
             </h3>
 
             <h3 className="mt-4 mb-2 text-lg font-medium">{t('Step 3/3: Get access and refresh tokens')}</h3>

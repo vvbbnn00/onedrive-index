@@ -5,7 +5,6 @@ export type OdAPIResponse = { file?: OdFileObject; folder?: OdFolderObject; next
 // inside the folder. The items may also be either files or folders.
 export type OdFolderObject = {
   '@odata.count': number
-  '@odata.context': string
   '@odata.nextLink'?: string
   value: Array<{
     id: string
@@ -21,7 +20,6 @@ export type OdFolderObject = {
 export type OdFolderChildren = OdFolderObject['value'][number]
 // A file object returned from the OneDrive API. This object may contain 'video' if the file is a video.
 export type OdFileObject = {
-  '@odata.context': string
   name: string
   size: number
   id: string
@@ -64,7 +62,6 @@ export type OdSearchResult = Array<{
 }>
 // API response object for /api/item/?id={id}. This is primarily used for determining the path of the driveItem by ID.
 export type OdDriveItem = {
-  '@odata.context': string
   '@odata.etag': string
   id: string
   name: string
