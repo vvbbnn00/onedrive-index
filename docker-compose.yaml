@@ -1,0 +1,15 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "20011:3000"
+    links:
+      - redis
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_USER_PRINCIPLE_NAME: gal@vvbbnn00.cn
+      KV_PREFIX: GALBOX
+      REDIS_URL: redis://redis:6379
+  redis:
+    image: redis

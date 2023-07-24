@@ -1,0 +1,6 @@
+app/.next
+app/.vscode
+app/node_modules
+app/.gitignore
+app/README.md
+app/LICENSE
