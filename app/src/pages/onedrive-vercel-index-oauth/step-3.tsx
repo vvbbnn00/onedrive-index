@@ -10,11 +10,27 @@ import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 
-import { requestTokenWithAuthCode, sendTokenToServer } from '../../utils/oAuthHandler'
+import { getAuthPersonInfo, requestTokenWithAuthCode, sendTokenToServer } from '../../utils/oAuthHandler'
 import { LoadingIcon } from '../../components/Loading'
+import { getAccessToken } from '../api'
+import Folders from '../[...path]'
 
-export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri }) {
+
+async function checkInstalled(): Promise<boolean> {
+  const access_token = await getAccessToken();
+  if (!access_token) return false;
+  try {
+    const { status } = await getAuthPersonInfo(access_token);
+    if (status !== 200) return false;
+  } catch (error: any) {
+    return false;
+  }
+  return true;
+}
+
+export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri, installed }) {
   const router = useRouter()
+
   const [expiryTimeLeft, setExpiryTimeLeft] = useState(expiryTime)
 
   const { t } = useTranslation()
@@ -29,12 +45,18 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
     return () => clearInterval(intervalId)
   }, [expiryTimeLeft])
 
+
   const [buttonContent, setButtonContent] = useState(
     <div>
       <span>{t('Store tokens')}</span> <FontAwesomeIcon icon="key" />
     </div>
   )
   const [buttonError, setButtonError] = useState(false)
+
+  if (installed) {
+    router.query.path = router.pathname.substring(1).split('/')
+    return Folders()
+  }
 
   const sendAuthTokensToServer = async () => {
     setButtonError(false)
@@ -182,11 +204,10 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
 
                 <div className="mb-2 mt-6 text-right">
                   <button
-                    className={`rounded-lg bg-gradient-to-br px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 ${
-                      buttonError
-                        ? 'from-red-500 to-orange-400 focus:ring-red-200 dark:focus:ring-red-800'
-                        : 'from-green-500 to-teal-300 focus:ring-green-200 dark:focus:ring-green-800'
-                    }`}
+                    className={`rounded-lg bg-gradient-to-br px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 ${buttonError
+                      ? 'from-red-500 to-orange-400 focus:ring-red-200 dark:focus:ring-red-800'
+                      : 'from-green-500 to-teal-300 focus:ring-green-200 dark:focus:ring-green-800'
+                      }`}
                     onClick={sendAuthTokensToServer}
                   >
                     {buttonContent}
@@ -205,6 +226,15 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
 
 export async function getServerSideProps({ query, locale }) {
   const { authCode } = query
+
+  const installed = await checkInstalled();
+  if (installed) {
+    return {
+      props: {
+        installed
+      }
+    }
+  }
 
   // Return if no auth code is present
   if (!authCode) {

@@ -10,9 +10,24 @@ import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { LoadingIcon } from '../../components/Loading'
-import { extractAuthCodeFromRedirected, generateAuthorisationUrl } from '../../utils/oAuthHandler'
+import { extractAuthCodeFromRedirected, generateAuthorisationUrl, getAuthPersonInfo } from '../../utils/oAuthHandler'
+import { getAccessToken } from '../api'
+import Folders from '../[...path]'
 
-export default function OAuthStep2() {
+async function checkInstalled(): Promise<boolean> {
+  const access_token = await getAccessToken();
+  if (!access_token) return false;
+  try {
+    const { status } = await getAuthPersonInfo(access_token);
+    if (status !== 200) return false;
+  } catch (error: any) {
+    return false;
+  }
+  return true;
+}
+
+
+export default function OAuthStep2({ installed }) {
   const router = useRouter()
 
   const [oAuthRedirectedUrl, setOAuthRedirectedUrl] = useState('')
@@ -20,6 +35,11 @@ export default function OAuthStep2() {
   const [buttonLoading, setButtonLoading] = useState(false)
 
   const { t } = useTranslation()
+
+  if (installed) {
+    router.query.path = router.pathname.substring(1).split('/')
+    return Folders()
+  }
 
   const oAuthUrl = generateAuthorisationUrl()
 
@@ -86,11 +106,10 @@ export default function OAuthStep2() {
             </div>
 
             <input
-              className={`my-2 w-full flex-1 rounded border bg-gray-50 p-2 font-mono text-sm font-medium focus:outline-none focus:ring dark:bg-gray-800 dark:text-white ${
-                authCode
+              className={`my-2 w-full flex-1 rounded border bg-gray-50 p-2 font-mono text-sm font-medium focus:outline-none focus:ring dark:bg-gray-800 dark:text-white ${authCode
                   ? 'border-green-500/50 focus:ring-green-500/30 dark:focus:ring-green-500/40'
                   : 'border-red-500/50 focus:ring-red-500/30 dark:focus:ring-red-500/40'
-              }`}
+                }`}
               autoFocus
               type="text"
               placeholder="http://localhost/?code=M.R3_BAY.c0..."
@@ -145,6 +164,7 @@ export async function getServerSideProps({ locale }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
+      installed: await checkInstalled()
     },
   }
 }

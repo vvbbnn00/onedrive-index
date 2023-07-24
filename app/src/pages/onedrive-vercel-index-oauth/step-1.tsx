@@ -9,6 +9,9 @@ import apiConfig from '../../../config/api.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { getAuthPersonInfo } from '../../utils/oAuthHandler'
+import { getAccessToken } from '../api'
+import Folders from '../[...path]'
 
 /**
  * Protect the secret information.
@@ -28,10 +31,28 @@ function addStarsAndTrim(text: string): string {
   return `${prefix}${stars}${suffix}`;
 }
 
-export default function OAuthStep1() {
-  const router = useRouter()
 
+async function checkInstalled(): Promise<boolean> {
+  const access_token = await getAccessToken();
+  if (!access_token) return false;
+  try {
+    const { status } = await getAuthPersonInfo(access_token);
+    if (status !== 200) return false;
+  } catch (error: any) {
+    return false;
+  }
+  return true;
+}
+
+
+export default function OAuthStep1({ installed }) {
   const { t } = useTranslation()
+
+  const router = useRouter()
+  if (installed) {
+    router.query.path = router.pathname.substring(1).split('/')
+    return Folders()
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900">
@@ -169,6 +190,7 @@ export async function getServerSideProps({ locale }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
+      installed: await checkInstalled()
     },
   }
 }

@@ -50,7 +50,7 @@ export async function requestTokenWithAuthCode(
 > {
   const { clientId, redirectUri, authApi } = apiConfig
   const clientSecret = apiConfig.clientSecret
-  
+
   // Construct URL parameters for OAuth2
   const params = new URLSearchParams()
   params.append('client_id', clientId)

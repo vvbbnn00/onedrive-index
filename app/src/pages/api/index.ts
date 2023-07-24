@@ -11,6 +11,19 @@ import { compareHashedToken } from '../../utils/protectedRouteHandler'
 import { getOdAuthTokens, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
 import { runCorsMiddleware } from './raw'
 
+
+async function checkInstalled(): Promise<boolean> {
+  const access_token = await getAccessToken();
+  if (!access_token) return false;
+  try {
+    const { status } = await getAuthPersonInfo(access_token);
+    if (status !== 200) return false;
+  } catch (error: any) {
+    return false;
+  }
+  return true;
+}
+
 const basePath = pathPosix.resolve('/', siteConfig.baseDirectory)
 const clientSecret = apiConfig.clientSecret
 
@@ -165,6 +178,13 @@ export async function checkAuthRoute(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // If method is POST, then the API is called by the client to store acquired tokens
   if (req.method === 'POST') {
+
+    // Only when the token is invalid can reset it.
+    if (await checkInstalled()) {
+      res.status(403).send('You don\'t have the permission to do that.');
+      return
+    }
+
     const { obfuscatedAccessToken, accessTokenExpiry, obfuscatedRefreshToken } = req.body
     const accessToken = revealObfuscatedToken(obfuscatedAccessToken)
     const refreshToken = revealObfuscatedToken(obfuscatedRefreshToken)
@@ -291,7 +311,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ...(sort ? { $orderby: sort } : {}),
         },
       })
-      
+
       delete folderData['@odata.context']
 
       // Extract next page token from full @odata.nextLink
