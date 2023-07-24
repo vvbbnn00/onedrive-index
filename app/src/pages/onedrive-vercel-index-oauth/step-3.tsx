@@ -15,6 +15,7 @@ import { LoadingIcon } from '../../components/Loading'
 import { getAccessToken } from '../api'
 import Folders from '../[...path]'
 import axios from 'axios'
+import getBuildId from '../../utils/buildIdHelper'
 
 
 async function checkInstalled(): Promise<boolean> {
@@ -46,7 +47,7 @@ async function sendTokenToServer(accessToken: string, refreshToken: string, expi
 }
 
 
-export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri, installed }) {
+export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri, installed, build_id }) {
   const router = useRouter()
 
   const [expiryTimeLeft, setExpiryTimeLeft] = useState(expiryTime)
@@ -73,7 +74,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
 
   if (installed) {
     router.query.path = router.pathname.substring(1).split('/')
-    return Folders()
+    return Folders(build_id)
   }
 
   const sendAuthTokensToServer = async () => {
@@ -237,7 +238,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         </div>
       </main>
 
-      <Footer />
+      <Footer BuildId="1" />
     </div>
   )
 }
@@ -288,6 +289,7 @@ export async function getServerSideProps({ query, locale }) {
       accessToken,
       refreshToken,
       ...(await serverSideTranslations(locale, ['common'])),
+      build_id: getBuildId()
     },
   }
 }

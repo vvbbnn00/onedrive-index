@@ -44,13 +44,13 @@ async function checkInstalled(): Promise<boolean> {
 }
 
 
-export default function OAuthStep1({ installed, apiConfig }) {
+export default function OAuthStep1({ installed, apiConfig, build_id }) {
   const { t } = useTranslation()
 
   const router = useRouter()
   if (installed) {
     router.query.path = router.pathname.substring(1).split('/')
-    return Folders()
+    return Folders(build_id)
   }
 
   return (
@@ -180,12 +180,13 @@ export default function OAuthStep1({ installed, apiConfig }) {
         </div>
       </main>
 
-      <Footer />
+      <Footer BuildId={build_id} />
     </div>
   )
 }
 
 import apiConfig from '../../../config/api.config';
+import getBuildId from '../../utils/buildIdHelper'
 export async function getServerSideProps({ locale }) {
 
   return {
@@ -194,7 +195,8 @@ export async function getServerSideProps({ locale }) {
       installed: await checkInstalled(),
       apiConfig: {
         ...apiConfig,
-        clientSecret: addStarsAndTrim(apiConfig.clientSecret)
+        clientSecret: addStarsAndTrim(apiConfig.clientSecret),
+        build_id: getBuildId()
       }
     },
   }

@@ -8,8 +8,9 @@ import FileListing from '../components/FileListing'
 import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
+import getBuildId from '../utils/buildIdHelper'
 
-export default function Folders() {
+export default function Folders({ build_id }) {
   const { query } = useRouter()
 
   return (
@@ -29,7 +30,7 @@ export default function Folders() {
         </div>
       </main>
 
-      <Footer />
+      <Footer BuildId={build_id} />
     </div>
   )
 }
@@ -38,6 +39,7 @@ export async function getServerSideProps({ locale }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
+      build_id: getBuildId()
     },
   }
 }

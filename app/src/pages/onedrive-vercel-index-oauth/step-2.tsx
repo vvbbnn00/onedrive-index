@@ -14,6 +14,7 @@ import { generateAuthorisationUrl, getAuthPersonInfo } from '../../utils/oAuthHa
 import { getAccessToken } from '../api'
 import Folders from '../[...path]'
 import apiConfig from '../../../config/api.config'
+import getBuildId from '../../utils/buildIdHelper'
 
 async function checkInstalled(): Promise<boolean> {
   const access_token = await getAccessToken();
@@ -28,7 +29,7 @@ async function checkInstalled(): Promise<boolean> {
 }
 
 
-export default function OAuthStep2({ installed, redirectUri, oAuthUrl }) {
+export default function OAuthStep2({ installed, redirectUri, oAuthUrl, build_id }) {
   const router = useRouter()
 
   const [oAuthRedirectedUrl, setOAuthRedirectedUrl] = useState('')
@@ -50,7 +51,7 @@ export default function OAuthStep2({ installed, redirectUri, oAuthUrl }) {
 
   if (installed) {
     router.query.path = router.pathname.substring(1).split('/')
-    return Folders()
+    return Folders(build_id)
   }
 
   return (
@@ -165,7 +166,7 @@ export default function OAuthStep2({ installed, redirectUri, oAuthUrl }) {
         </div>
       </main>
 
-      <Footer />
+      <Footer BuildId={build_id} />
     </div>
   )
 }
@@ -176,7 +177,8 @@ export async function getServerSideProps({ locale }) {
       ...(await serverSideTranslations(locale, ['common'])),
       installed: await checkInstalled(),
       redirectUri: apiConfig.redirectUri,
-      oAuthUrl: generateAuthorisationUrl()
+      oAuthUrl: generateAuthorisationUrl(),
+      build_id: getBuildId()
     },
   }
 }

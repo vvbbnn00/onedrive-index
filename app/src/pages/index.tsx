@@ -7,8 +7,9 @@ import FileListing from '../components/FileListing'
 import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
+import getBuildId from '../utils/buildIdHelper'
 
-export default function Home() {
+export default function Home({ build_id }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900 !bg-opacity-80">
       <Head>
@@ -26,7 +27,7 @@ export default function Home() {
         </div>
       </main>
 
-      <Footer />
+      <Footer BuildId={build_id} />
     </div>
   )
 }
@@ -35,6 +36,7 @@ export async function getServerSideProps({ locale }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
+      build_id: getBuildId()
     },
   }
 }
