@@ -238,7 +238,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         </div>
       </main>
 
-      <Footer BuildId="1" />
+      <Footer BuildId={build_id} />
     </div>
   )
 }
