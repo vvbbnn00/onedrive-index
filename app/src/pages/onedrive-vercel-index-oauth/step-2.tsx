@@ -10,9 +10,10 @@ import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { LoadingIcon } from '../../components/Loading'
-import { extractAuthCodeFromRedirected, generateAuthorisationUrl, getAuthPersonInfo } from '../../utils/oAuthHandler'
+import { generateAuthorisationUrl, getAuthPersonInfo } from '../../utils/oAuthHandler'
 import { getAccessToken } from '../api'
 import Folders from '../[...path]'
+import apiConfig from '../../../config/api.config'
 
 async function checkInstalled(): Promise<boolean> {
   const access_token = await getAccessToken();
@@ -27,12 +28,23 @@ async function checkInstalled(): Promise<boolean> {
 }
 
 
-export default function OAuthStep2({ installed }) {
+export default function OAuthStep2({ installed, redirectUri, oAuthUrl }) {
   const router = useRouter()
 
   const [oAuthRedirectedUrl, setOAuthRedirectedUrl] = useState('')
   const [authCode, setAuthCode] = useState('')
   const [buttonLoading, setButtonLoading] = useState(false)
+
+  function extractAuthCodeFromRedirected(url: string): string {
+    // Return empty string if the url is not the defined redirect uri
+    if (!url.startsWith(redirectUri)) {
+      return ''
+    }
+
+    // New URL search parameter
+    const params = new URLSearchParams(url.split('?')[1])
+    return params.get('code') ?? ''
+  }
 
   const { t } = useTranslation()
 
@@ -40,8 +52,6 @@ export default function OAuthStep2({ installed }) {
     router.query.path = router.pathname.substring(1).split('/')
     return Folders()
   }
-
-  const oAuthUrl = generateAuthorisationUrl()
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900">
@@ -107,8 +117,8 @@ export default function OAuthStep2({ installed }) {
 
             <input
               className={`my-2 w-full flex-1 rounded border bg-gray-50 p-2 font-mono text-sm font-medium focus:outline-none focus:ring dark:bg-gray-800 dark:text-white ${authCode
-                  ? 'border-green-500/50 focus:ring-green-500/30 dark:focus:ring-green-500/40'
-                  : 'border-red-500/50 focus:ring-red-500/30 dark:focus:ring-red-500/40'
+                ? 'border-green-500/50 focus:ring-green-500/30 dark:focus:ring-green-500/40'
+                : 'border-red-500/50 focus:ring-red-500/30 dark:focus:ring-red-500/40'
                 }`}
               autoFocus
               type="text"
@@ -164,7 +174,9 @@ export async function getServerSideProps({ locale }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      installed: await checkInstalled()
+      installed: await checkInstalled(),
+      redirectUri: apiConfig.redirectUri,
+      oAuthUrl: generateAuthorisationUrl()
     },
   }
 }

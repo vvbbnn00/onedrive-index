@@ -11,6 +11,8 @@ import { compareHashedToken } from '../../utils/protectedRouteHandler'
 import { getOdAuthTokens, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
 import { runCorsMiddleware } from './raw'
 
+// import CryptoJS from 'crypto-js'
+// const AES_SECRET_KEY = 'onedrive-vercel-index'
 
 async function checkInstalled(): Promise<boolean> {
   const access_token = await getAccessToken();

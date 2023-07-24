@@ -5,7 +5,6 @@ import { useTranslation, Trans } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 
 import siteConfig from '../../../config/site.config'
-import apiConfig from '../../../config/api.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -45,7 +44,7 @@ async function checkInstalled(): Promise<boolean> {
 }
 
 
-export default function OAuthStep1({ installed }) {
+export default function OAuthStep1({ installed, apiConfig }) {
   const { t } = useTranslation()
 
   const router = useRouter()
@@ -112,7 +111,7 @@ export default function OAuthStep1({ installed }) {
                       CLIENT_ID
                     </td>
                     <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{addStarsAndTrim(apiConfig.clientId)}</code>
+                      <code className="font-mono text-sm">{apiConfig.clientId}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
@@ -120,7 +119,7 @@ export default function OAuthStep1({ installed }) {
                       CLIENT_SECRET*
                     </td>
                     <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{addStarsAndTrim(apiConfig.clientSecret)}</code>
+                      <code className="font-mono text-sm">{apiConfig.clientSecret}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
@@ -186,11 +185,17 @@ export default function OAuthStep1({ installed }) {
   )
 }
 
+import apiConfig from '../../../config/api.config';
 export async function getServerSideProps({ locale }) {
+
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      installed: await checkInstalled()
+      installed: await checkInstalled(),
+      apiConfig: {
+        ...apiConfig,
+        clientSecret: addStarsAndTrim(apiConfig.clientSecret)
+      }
     },
   }
 }

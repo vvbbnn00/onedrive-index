@@ -10,10 +10,11 @@ import siteConfig from '../../../config/site.config'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 
-import { getAuthPersonInfo, requestTokenWithAuthCode, sendTokenToServer } from '../../utils/oAuthHandler'
+import { getAuthPersonInfo, requestTokenWithAuthCode } from '../../utils/oAuthHandler'
 import { LoadingIcon } from '../../components/Loading'
 import { getAccessToken } from '../api'
 import Folders from '../[...path]'
+import axios from 'axios'
 
 
 async function checkInstalled(): Promise<boolean> {
@@ -27,6 +28,23 @@ async function checkInstalled(): Promise<boolean> {
   }
   return true;
 }
+
+async function sendTokenToServer(accessToken: string, refreshToken: string, expiryTime: string) {
+  return await axios.post(
+    '/api',
+    {
+      obfuscatedAccessToken: accessToken,
+      accessTokenExpiry: parseInt(expiryTime),
+      obfuscatedRefreshToken: refreshToken,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+}
+
 
 export default function OAuthStep3({ accessToken, expiryTime, refreshToken, error, description, errorUri, installed }) {
   const router = useRouter()
