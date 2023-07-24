@@ -48,7 +48,7 @@ const SwitchLang = () => {
   return (
     <div className="relative">
       <Menu>
-        <Menu.Button className="flex items-center space-x-1.5 hover:opacity-80 dark:text-white">
+        <Menu.Button className="flex items-center space-x-1.5 hover:opacity-80 dark:text-white !bg-opacity-50">
           <FontAwesomeIcon className="h-4 w-4" icon="language" />
           <FontAwesomeIcon className="h-3 w-3" icon="chevron-down" />
         </Menu.Button>
@@ -62,7 +62,7 @@ const SwitchLang = () => {
           leaveFrom="transform scale-100 opacity-100"
           leaveTo="transform scale-95 opacity-0"
         >
-          <Menu.Items className="absolute top-0 right-0 z-20 mt-8 w-28 divide-y divide-gray-900 overflow-auto rounded border border-gray-900/10 bg-white py-1 shadow-lg focus:outline-none dark:border-gray-500/30 dark:bg-gray-900 dark:text-white">
+          <Menu.Items className="absolute top-0 right-0 z-20 mt-8 w-28 divide-y divide-gray-900 overflow-auto rounded border border-gray-900/10 bg-white py-1 shadow-lg focus:outline-none dark:border-gray-500/30 dark:bg-gray-900 dark:text-white !bg-opacity-50">
             {locales!.map(locale => (
               <Menu.Item key={locale}>
                 <CustomLink
@@ -72,7 +72,7 @@ const SwitchLang = () => {
                   locale={locale}
                   onClick={() => setCookie('NEXT_LOCALE', locale, { path: '/' })}
                 >
-                  <div className="m-1 cursor-pointer rounded px-2 py-1 text-left text-sm font-medium hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-600/10 dark:hover:text-blue-400">
+                  <div className="m-1 cursor-pointer rounded px-2 py-1 text-left text-sm font-medium hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-600/10 dark:hover:text-blue-400 !bg-opacity-50">
                     {localeText(locale)}
                   </div>
                 </CustomLink>

@@ -46,6 +46,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
         <SyntaxHighlighter
           language={getLanguageByFileName(file.name)}
           style={theme === 'dark' ? tomorrowNightEighties : tomorrow}
+          customStyle={{ backgroundColor: 'transparent' }}
         >
           {content}
         </SyntaxHighlighter>

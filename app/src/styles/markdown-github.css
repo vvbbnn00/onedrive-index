@@ -61,7 +61,7 @@
   -webkit-text-size-adjust: 100%;
   line-height: 1.5;
   color: #24292e;
-  background-color: #ffffff;
+  background-color: transparent;
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
@@ -998,7 +998,7 @@
     /* color: #c9d1d9; */
     /* background-color: #0d1117; */
     color: #f3f4f6;
-    background-color: #18181b;
+    background-color: transparent;
   }
   .markdown-body a {
     color: rgba(2, 132, 199);

@@ -24,7 +24,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: [`"${siteConfig.googleFontSans}"`, '"Noto Sans SC"', ...defaultTheme.fontFamily.sans],
+        sans: [`"${siteConfig.googleFontSans}"`, '"Noto Sans SC"', '"Noto Sans TC"', '"Noto Sans HK"', '"Noto Sans JP"', ...defaultTheme.fontFamily.sans],
         mono: [`"${siteConfig.googleFontMono}"`, ...defaultTheme.fontFamily.mono]
       },
       colors: {

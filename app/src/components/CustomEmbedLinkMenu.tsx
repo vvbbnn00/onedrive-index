@@ -13,7 +13,7 @@ function LinkContainer({ title, value }: { title: string; value: string }) {
   return (
     <>
       <h4 className="py-2 text-xs font-medium uppercase tracking-wider">{title}</h4>
-      <div className="group relative mb-2 max-h-24 overflow-y-scroll break-all rounded border border-gray-400/20 bg-gray-50 p-2.5 font-mono dark:bg-gray-800">
+      <div className="group relative mb-2 max-h-24 overflow-y-scroll break-all rounded border border-gray-400/20 bg-gray-50 p-2.5 font-mono dark:bg-gray-800 !backdrop-blur-md !bg-opacity-50">
         <div className="opacity-80">{value}</div>
         <button
           onClick={() => clipboard.copy(value)}
@@ -76,7 +76,7 @@ export default function CustomEmbedLinkMenu({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block max-h-[80vh] w-full max-w-3xl transform overflow-hidden overflow-y-scroll rounded border border-gray-400/30 bg-white p-4 text-left align-middle text-sm shadow-xl transition-all dark:bg-gray-900 dark:text-white">
+            <div className="inline-block max-h-[80vh] w-full max-w-3xl transform overflow-hidden overflow-y-scroll rounded border border-gray-400/30 bg-white p-4 text-left align-middle text-sm shadow-xl transition-all dark:bg-gray-900 dark:text-white !backdrop-blur-md !bg-opacity-50">
               <Dialog.Title as="h3" className="py-2 text-xl font-bold">
                 {t('Customise direct link')}
               </Dialog.Title>
@@ -97,7 +97,7 @@ export default function CustomEmbedLinkMenu({
               <div className="mt-4">
                 <h4 className="py-2 text-xs font-medium uppercase tracking-wider">{t('Filename')}</h4>
                 <input
-                  className="mb-2 w-full rounded border border-gray-600/10 p-2.5 font-mono focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
+                  className="mb-2 w-full rounded border border-gray-600/10 p-2.5 font-mono focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700 !backdrop-blur-md !bg-opacity-50"
                   ref={focusInputRef}
                   value={name}
                   onChange={e => setName(e.target.value)}

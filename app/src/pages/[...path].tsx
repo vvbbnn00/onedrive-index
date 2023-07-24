@@ -13,14 +13,14 @@ export default function Folders() {
   const { query } = useRouter()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900 !opacity-80">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900 !bg-opacity-80">
       <Head>
         <title>{siteConfig.title}</title>
       </Head>
 
-      <main className="flex w-full flex-1 flex-col bg-gray-50 dark:bg-gray-800">
+      <main className="flex w-full flex-1 flex-col bg-gray-50 dark:bg-gray-800 !bg-opacity-50">
         <Navbar />
-        <div className="mx-auto w-full max-w-5xl py-4 sm:p-4">
+        <div className="mx-auto w-full max-w-5xl py-4 sm:p-4 !bg-opacity-50">
           <nav className="mb-4 flex items-center justify-between space-x-3 px-4 sm:px-0 sm:pl-1">
             <Breadcrumb query={query} />
             <SwitchLayout />
