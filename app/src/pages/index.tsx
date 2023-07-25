@@ -8,8 +8,9 @@ import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
 import getBuildId from '../utils/buildIdHelper'
+import { getFileList } from './api'
 
-export default function Home({ build_id }) {
+export default function Home({ build_id, renderedData }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gray-900 !bg-opacity-80">
       <Head>
@@ -23,7 +24,7 @@ export default function Home({ build_id }) {
             <Breadcrumb />
             <SwitchLayout />
           </nav>
-          <FileListing />
+          <FileListing renderedData={renderedData} />
         </div>
       </main>
 
@@ -32,11 +33,12 @@ export default function Home({ build_id }) {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getServerSideProps({ locale, query }) {
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      build_id: getBuildId()
+      build_id: getBuildId(),
+      renderedData: await getFileList(query)
     },
   }
 }

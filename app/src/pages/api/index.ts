@@ -177,6 +177,92 @@ export async function checkAuthRoute(
   return { code: 200, message: 'Authenticated.' }
 }
 
+
+export async function getFileList(query) {
+  const { path = '/', next = '', sort = '' } = query
+
+  // Invalid requests doesn't support SSR
+  if (path === '[...path]') {
+    return false
+  }
+  if (typeof path !== 'string') {
+    return false
+  }
+
+  // Besides normalizing and making absolute, trailing slashes are trimmed
+  const cleanPath = decodeURIComponent(pathPosix.resolve('/', pathPosix.normalize(path)).replace(/\/$/, ''))
+
+  // Validate sort param
+  if (typeof sort !== 'string') {
+    return false
+  }
+
+  const accessToken = await getAccessToken()
+
+  // Return error 403 if access_token is empty
+  if (!accessToken) {
+    return false
+  }
+
+  // Handle protected routes authentication
+  const { code } = await checkAuthRoute(cleanPath, accessToken, '')
+  // Status code other than 200 means user has not authenticated yet
+  if (code !== 200) {
+    return false
+  }
+
+  const requestPath = encodePath(cleanPath)
+  console.debug('requestPath SSRAPI', requestPath);
+
+  // Handle response from OneDrive API
+  const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
+  // Whether path is root, which requires some special treatment
+  const isRoot = requestPath === ''
+
+  // Querying current path identity (file or folder) and follow up query childrens in folder
+  try {
+    const { data: identityData } = await axios.get(requestUrl, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      params: {
+        select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+      },
+    })
+
+    if ('folder' in identityData) {
+      const { data: folderData } = await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: {
+          ...{
+            select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+            $top: siteConfig.maxItems,
+          },
+          ...(next ? { $skipToken: next } : {}),
+          ...(sort ? { $orderby: sort } : {}),
+        },
+      })
+
+      delete folderData['@odata.context']
+
+      // Extract next page token from full @odata.nextLink
+      const nextPage = folderData['@odata.nextLink']
+        ? folderData['@odata.nextLink'].match(/&\$skiptoken=(.+)/i)[1]
+        : null
+
+      // Return paging token if specified
+      if (nextPage) {
+        return { folder: folderData, next: nextPage }
+      } else {
+        return { folder: folderData }
+      }
+    }
+    return { file: identityData }
+  } catch (error: any) {
+    console.warn('Failed to get files, code %d, data: %s', error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
+    return false
+  }
+}
+
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // If method is POST, then the API is called by the client to store acquired tokens
   if (req.method === 'POST') {
@@ -213,7 +299,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // If method is GET, then the API is a normal request to the OneDrive API for files or folders
-  const { path = '/', raw = false, next = '', sort = '' } = req.query
+  const { path = '/', next = '', sort = '' } = req.query
 
   // Set edge function caching for faster load times, check docs:
   // https://vercel.com/docs/concepts/functions/edge-caching
@@ -264,33 +350,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
   // Whether path is root, which requires some special treatment
   const isRoot = requestPath === ''
-  // Go for file raw download link, add CORS headers, and redirect to @microsoft.graph.downloadUrl
-  // (kept here for backwards compatibility, and cache headers will be reverted to no-cache)
-  try {
-    if (raw) {
-      await runCorsMiddleware(req, res)
-      res.setHeader('Cache-Control', 'no-cache')
-
-      const { data } = await axios.get(requestUrl, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        params: {
-          // OneDrive international version fails when only selecting the downloadUrl (what a stupid bug)
-          select: 'id,@microsoft.graph.downloadUrl',
-        },
-      })
-
-      if ('@microsoft.graph.downloadUrl' in data) {
-        res.redirect(data['@microsoft.graph.downloadUrl'])
-      } else {
-        res.status(404).json({ error: 'No download url found.' })
-      }
-      return
-    }
-  } catch (error: any) {
-    res.status(error?.response?.code ?? 500).json({ error: error?.response?.data ?? 'Internal server error.' })
-    return
-  }
-
 
   // Querying current path identity (file or folder) and follow up query childrens in folder
   try {

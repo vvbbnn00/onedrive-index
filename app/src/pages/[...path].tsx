@@ -9,8 +9,10 @@ import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
 import getBuildId from '../utils/buildIdHelper'
+import { getFileList } from './api'
+import { ParsedUrlQuery } from 'querystring'
 
-export default function Folders({ build_id }) {
+export default function Folders({ build_id, renderedData }) {
   const { query } = useRouter()
 
   return (
@@ -26,7 +28,7 @@ export default function Folders({ build_id }) {
             <Breadcrumb query={query} />
             <SwitchLayout />
           </nav>
-          <FileListing query={query} />
+          <FileListing query={query} renderedData={renderedData} />
         </div>
       </main>
 
@@ -35,11 +37,30 @@ export default function Folders({ build_id }) {
   )
 }
 
-export async function getServerSideProps({ locale }) {
+/**
+ * Convert url query into path string
+ *
+ * @param query Url query property
+ * @returns Path string
+ */
+const queryToPath = (query?: ParsedUrlQuery) => {
+  if (query) {
+    const { path } = query
+    if (!path) return '/'
+    if (typeof path === 'string') return `/${encodeURIComponent(path)}`
+    return `/${path.map(p => encodeURIComponent(p)).join('/')}`
+  }
+  return '/'
+}
+
+export async function getServerSideProps({ locale, query }) {
+  const path = queryToPath(query);
+
   return {
     props: {
       ...(await serverSideTranslations(locale, ['common'])),
-      build_id: getBuildId()
+      build_id: getBuildId(),
+      renderedData: await getFileList({ path })
     },
   }
 }
