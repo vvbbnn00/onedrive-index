@@ -12,6 +12,7 @@ import FourOhFour from '../FourOhFour'
 import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
+import BasicInfoPanel from './BasicInfoPanel'
 
 const CodePreview: FC<{ file: any }> = ({ file }) => {
   const { asPath } = useRouter()
@@ -30,9 +31,10 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
   if (validating) {
     return (
       <>
-        <PreviewContainer>
+        <BasicInfoPanel file={file}></BasicInfoPanel>
+        <div className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white dark:bg-gray-900 md:p-3 border-t border-gray-900/10 dark:border-gray-500/30 backdrop-blur-md !bg-opacity-50">
           <Loading loadingText={t('Loading file content...')} />
-        </PreviewContainer>
+        </div>
         <DownloadBtnContainer>
           <DownloadButtonGroup />
         </DownloadBtnContainer>
@@ -42,7 +44,8 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
 
   return (
     <>
-      <PreviewContainer>
+      <BasicInfoPanel file={file}></BasicInfoPanel>
+      <div className="no-scrollbar flex w-full flex-col overflow-scroll rounded bg-white dark:bg-gray-900 md:p-3 border-t border-gray-900/10 dark:border-gray-500/30 backdrop-blur-md !bg-opacity-50">
         <SyntaxHighlighter
           language={getLanguageByFileName(file.name)}
           style={theme === 'dark' ? tomorrowNightEighties : tomorrow}
@@ -50,7 +53,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
         >
           {content}
         </SyntaxHighlighter>
-      </PreviewContainer>
+      </div>
       <DownloadBtnContainer>
         <DownloadButtonGroup />
       </DownloadBtnContainer>

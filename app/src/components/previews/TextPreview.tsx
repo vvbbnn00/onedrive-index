@@ -6,6 +6,7 @@ import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import useFileContent from '../../utils/fetchOnMount'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
+import BasicInfoPanel from './BasicInfoPanel'
 
 const TextPreview = ({ file }) => {
   const { asPath } = useRouter()
@@ -20,41 +21,21 @@ const TextPreview = ({ file }) => {
     )
   }
 
-  if (validating) {
-    return (
-      <>
-        <PreviewContainer>
-          <Loading loadingText={t('Loading file content...')} />
-        </PreviewContainer>
-        <DownloadBtnContainer>
-          <DownloadButtonGroup />
-        </DownloadBtnContainer>
-      </>
-    )
-  }
-
-  if (!content) {
-    return (
-      <>
-        <PreviewContainer>
-          <FourOhFour errorMsg={t('File is empty.')} />
-        </PreviewContainer>
-        <DownloadBtnContainer>
-          <DownloadButtonGroup />
-        </DownloadBtnContainer>
-      </>
-    )
-  }
 
   return (
-    <div>
-      <PreviewContainer>
-        <pre className="overflow-x-scroll p-0 text-sm md:p-3">{content}</pre>
-      </PreviewContainer>
+    <>
+      <BasicInfoPanel file={file}></BasicInfoPanel>
+
+      <div className='w-full overflow-hidden border-t border-gray-900/10 bg-white bg-opacity-80 p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded backdrop-blur-md !bg-opacity-50'>
+        {validating && <Loading loadingText={t('Loading file content...')} />}
+        {(!content && !validating) && <FourOhFour errorMsg={t('File is empty.')} />}
+        {(content && !validating) && <pre className="overflow-x-scroll p-0 text-sm md:p-3">{content}</pre>}
+      </div>
+      
       <DownloadBtnContainer>
         <DownloadButtonGroup />
       </DownloadBtnContainer>
-    </div>
+    </>
   )
 }
 

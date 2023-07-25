@@ -15,6 +15,7 @@ import FourOhFour from '../FourOhFour'
 import Loading from '../Loading'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
+import BasicInfoPanel from './BasicInfoPanel'
 
 const MarkdownPreview: FC<{
   file: any
@@ -97,9 +98,10 @@ const MarkdownPreview: FC<{
   if (validating) {
     return (
       <>
-        <PreviewContainer>
+        {standalone && <BasicInfoPanel file={file}></BasicInfoPanel>}
+        <div className="border-t border-gray-900/10 bg-white bg-opacity-80 p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded !bg-opacity-50">
           <Loading loadingText={t('Loading file content...')} />
-        </PreviewContainer>
+        </div>
         {standalone && (
           <DownloadBtnContainer>
             <DownloadButtonGroup />
@@ -111,7 +113,8 @@ const MarkdownPreview: FC<{
 
   return (
     <div>
-      <PreviewContainer>
+      {standalone && <BasicInfoPanel file={file}></BasicInfoPanel>}
+      <div className="border-t border-gray-900/10 bg-white bg-opacity-80 p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded">
         <div className="markdown-body">
           {/* Using rehypeRaw to render HTML inside Markdown is potentially dangerous, use under safe environments. (#18) */}
           <ReactMarkdown
@@ -127,7 +130,7 @@ const MarkdownPreview: FC<{
             {content}
           </ReactMarkdown>
         </div>
-      </PreviewContainer>
+      </div>
       {standalone && (
         <DownloadBtnContainer>
           <DownloadButtonGroup />

@@ -11,7 +11,7 @@ import { useAsync } from 'react-async-hook'
 import { useClipboard } from 'use-clipboard-copy'
 
 import { getBaseUrl } from '../../utils/getBaseUrl'
-import { getExtension } from '../../utils/getFileIcon'
+import { getExtension, getFileIcon } from '../../utils/getFileIcon'
 import { getStoredToken } from '../../utils/protectedRouteHandler'
 
 import { DownloadButton } from '../DownloadBtnGtoup'
@@ -21,6 +21,7 @@ import Loading from '../Loading'
 import CustomEmbedLinkMenu from '../CustomEmbedLinkMenu'
 
 import 'plyr-react/plyr.css'
+import BasicInfoPanel from './BasicInfoPanel'
 
 const VideoPlayer: FC<{
   videoName: string
@@ -106,24 +107,29 @@ const VideoPreview: FC<{ file: OdFileObject }> = ({ file }) => {
   return (
     <>
       <CustomEmbedLinkMenu path={asPath} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-      <PreviewContainer>
-        {error ? (
-          <FourOhFour errorMsg={error.message} />
-        ) : loading && isFlv ? (
-          <Loading loadingText={t('Loading FLV extension...')} />
-        ) : (
-          <VideoPlayer
-            videoName={file.name}
-            videoUrl={videoUrl}
-            width={file.video?.width}
-            height={file.video?.height}
-            thumbnail={thumbnail}
-            subtitle={subtitle}
-            isFlv={isFlv}
-            mpegts={mpegts}
-          />
-        )}
-      </PreviewContainer>
+
+      <BasicInfoPanel file={file}></BasicInfoPanel>
+
+      <div className='w-full overflow-hidden border-t border-gray-900/10 bg-white bg-opacity-80 p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded backdrop-blur-md !bg-opacity-50'>
+        <div>
+          {error ? (
+            <FourOhFour errorMsg={error.message} />
+          ) : loading && isFlv ? (
+            <Loading loadingText={t('Loading FLV extension...')} />
+          ) : (
+            <VideoPlayer
+              videoName={file.name}
+              videoUrl={videoUrl}
+              width={file.video?.width}
+              height={file.video?.height}
+              thumbnail={thumbnail}
+              subtitle={subtitle}
+              isFlv={isFlv}
+              mpegts={mpegts}
+            />
+          )}
+        </div>
+      </div>
 
       <DownloadBtnContainer>
         <div className="flex flex-wrap justify-center gap-2">
