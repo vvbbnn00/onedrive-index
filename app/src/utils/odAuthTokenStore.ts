@@ -27,3 +27,13 @@ export async function storeOdAuthTokens({
   await kv.set(`${siteConfig.kvPrefix}access_token`, accessToken, 'EX', accessTokenExpiry)
   await kv.set(`${siteConfig.kvPrefix}refresh_token`, refreshToken)
 }
+
+export async function getCache({ key }: { key: string }): Promise<{ data: unknown, exists: number }> {
+  const data = await kv.get(`${siteConfig.kvPrefix}_cache:${key}`);
+  const exists = await kv.exists(`${siteConfig.kvPrefix}_cache:${key}`);
+  return { data, exists }
+}
+
+export async function setCache({ key, value, ex = 300 }: { key: string, value: string, ex?: number }): Promise<void> {
+  await kv.set(`${siteConfig.kvPrefix}_cache:${key}`, value, 'EX', ex);
+}

@@ -8,7 +8,7 @@ import siteConfig from '../../../config/site.config'
 import { getAuthPersonInfo } from '../../utils/oAuthHandler'
 import { revealObfuscatedToken } from '../../utils/oAuthHandler'
 import { compareHashedToken } from '../../utils/protectedRouteHandler'
-import { getOdAuthTokens, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
+import { getCache, getOdAuthTokens, setCache, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
 import { runCorsMiddleware } from './raw'
 
 // import CryptoJS from 'crypto-js'
@@ -178,6 +178,49 @@ export async function checkAuthRoute(
 }
 
 
+async function getFileTextFromCache(path) {
+  const { data: cache, exists: cache_exists } = await getCache({
+    key: 'F_' + path
+  });
+  // console.log(path, cache_exists)
+  if (cache_exists) return cache;
+
+  try {
+    const accessToken = await getAccessToken()
+    const { data } = await axios.get(`${apiConfig.driveApi}/root${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      params: {
+        // OneDrive international version fails when only selecting the downloadUrl (what a stupid bug)
+        select: 'id,size,@microsoft.graph.downloadUrl',
+      },
+    })
+    if ('@microsoft.graph.downloadUrl' in data) {
+      // Only proxy raw file content response for files up to 4MB
+      if ('size' in data && data['size'] < 4194304) {
+        const { data: stream } = await axios.get(data['@microsoft.graph.downloadUrl'] as string, {
+          responseType: 'text',
+        })
+        setCache({
+          key: 'F_' + path,
+          value: stream
+        })
+        return stream
+      }
+      return ''
+    }
+  } catch (error: any) {
+    console.warn('axios.get readme.md', JSON.stringify(error.message))
+    if (error?.response?.status === 404) {
+      setCache({
+        key: 'F_' + path,
+        value: ''
+      })
+    }
+    return ''
+  }
+}
+
+
 export async function getFileList(query) {
   const { path = '/', next = '', sort = '' } = query
 
@@ -219,6 +262,8 @@ export async function getFileList(query) {
   // Whether path is root, which requires some special treatment
   const isRoot = requestPath === ''
 
+  let readme = '', head = '';
+
   // Querying current path identity (file or folder) and follow up query childrens in folder
   try {
     const { data: identityData } = await axios.get(requestUrl, {
@@ -229,6 +274,9 @@ export async function getFileList(query) {
     })
 
     if ('folder' in identityData) {
+      readme = await getFileTextFromCache(encodePath(cleanPath + '/readme.md'));
+      head = await getFileTextFromCache(encodePath(cleanPath + '/head.md'));
+
       const { data: folderData } = await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {
@@ -250,9 +298,9 @@ export async function getFileList(query) {
 
       // Return paging token if specified
       if (nextPage) {
-        return { folder: folderData, next: nextPage }
+        return { folder: folderData, next: nextPage, readme, head }
       } else {
-        return { folder: folderData }
+        return { folder: folderData, readme, head }
       }
     }
     return { file: identityData }

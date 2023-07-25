@@ -163,8 +163,10 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({ query
 
   const path = queryToPath(query)
 
+  // console.debug(renderedData);
+
   const { data, error, size, setSize } = useProtectedSWRInfinite(path, renderedData)
-  
+
   if (error) {
     // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page
     if (error.status === 403) {
@@ -200,6 +202,9 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({ query
 
     // Find README.md file to render
     const readmeFile = folderChildren.find(c => c.name.toLowerCase() === 'readme.md')
+
+    // Find HEAD.md file to render
+    const headFile = folderChildren.find(c => c.name.toLowerCase() === 'head.md')
 
     // Filtered file list helper
     const getFiles = () => folderChildren.filter(c => !c.folder && c.name !== '.password')
@@ -344,6 +349,12 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({ query
       <>
         <Toaster />
 
+        {(renderedData.head?.length > 0 || headFile) && (
+          <div className="mb-4">
+            <MarkdownPreview file={headFile} path={path} standalone={false} setContent={renderedData.head} />
+          </div>
+        )}
+
         {layout.name === 'Grid' ? <FolderGridLayout {...folderProps} /> : <FolderListLayout {...folderProps} />}
 
         {!onlyOnePage && (
@@ -380,9 +391,9 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({ query
           </div>
         )}
 
-        {readmeFile && (
+        {(renderedData.readme?.length > 0 || readmeFile) && (
           <div className="mt-4">
-            <MarkdownPreview file={readmeFile} path={path} standalone={false} />
+            <MarkdownPreview file={readmeFile} path={path} standalone={false} setContent={renderedData.readme} />
           </div>
         )}
       </>

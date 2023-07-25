@@ -9,13 +9,21 @@ import { getStoredToken } from './protectedRouteHandler'
  */
 export default function useFileContent(
   fetchUrl: string,
-  path: string
-): { response: any; error: string; validating: boolean } {
+  path: string,
+  setContent?: string
+): { response: any; error: string | null; validating: boolean } {
   const [response, setResponse] = useState('')
   const [validating, setValidating] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+
+    if (setContent) {
+      setValidating(false);
+      setResponse(setContent);
+      return
+    }
+
     const hashedToken = getStoredToken(path)
     const url = fetchUrl + (hashedToken ? `&odpt=${hashedToken}` : '')
 
@@ -26,6 +34,6 @@ export default function useFileContent(
       .then(async res => setResponse(await res.data.text()))
       .catch(e => setError(e.message))
       .finally(() => setValidating(false))
-  }, [fetchUrl, path])
+  }, [fetchUrl, path, setContent])
   return { response, error, validating }
 }
