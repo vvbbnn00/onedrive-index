@@ -1,13 +1,19 @@
 import axios from 'axios'
 import apiConfig from '../../config/api.config'
+import CryptoJS from 'crypto-js'
 
 // Just a disguise to obfuscate required tokens (including but not limited to client secret,
 // access tokens, and refresh tokens), used along with the following two functions
-export function obfuscateToken(token: string): string {
-  return token
+const AES_SECRET_KEY = process.env.SECRET_KEY ?? 'onedrive-docker-index' // Recommended to be set in environment
+export function encryptData(data: string): string {
+  const cipherText = CryptoJS.AES.encrypt(data, AES_SECRET_KEY);
+  return cipherText.toString();
 }
-export function revealObfuscatedToken(obfuscated: string): string {
-  return obfuscated
+
+export function decryptData(obfuscated: string): string {
+  const bytes = CryptoJS.AES.decrypt(obfuscated, AES_SECRET_KEY);
+  const originalText = bytes.toString(CryptoJS.enc.Utf8);
+  return originalText;
 }
 
 // Generate the Microsoft OAuth 2.0 authorization URL, used for requesting the authorisation code

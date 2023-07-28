@@ -5,8 +5,7 @@ import axios from 'axios'
 
 import apiConfig from '../../../config/api.config'
 import siteConfig from '../../../config/site.config'
-import { getAuthPersonInfo } from '../../utils/oAuthHandler'
-import { revealObfuscatedToken } from '../../utils/oAuthHandler'
+import { encryptData, getAuthPersonInfo } from '../../utils/oAuthHandler'
 import { compareHashedToken } from '../../utils/protectedRouteHandler'
 import { getCache, getOdAuthTokens, setCache, storeOdAuthTokens } from '../../utils/odAuthTokenStore'
 import { runCorsMiddleware } from './raw'
@@ -269,7 +268,7 @@ export async function getFileList(query) {
     const { data: identityData } = await axios.get(requestUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
       params: {
-        select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+        select: 'name,id,size,lastModifiedDateTime,folder,file,video,image',
       },
     })
 
@@ -281,7 +280,7 @@ export async function getFileList(query) {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {
           ...{
-            select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+            select: 'name,id,size,lastModifiedDateTime,folder,file,video,image',
             $top: siteConfig.maxItems,
           },
           ...(next ? { $skipToken: next } : {}),
@@ -290,6 +289,11 @@ export async function getFileList(query) {
       })
 
       delete folderData['@odata.context']
+      folderData.value = folderData?.value?.map(item => {
+        delete item['@odata.etag']
+        item.id = encryptData(item.id)
+        return item
+      })
 
       // Extract next page token from full @odata.nextLink
       const nextPage = folderData['@odata.nextLink']
@@ -303,6 +307,10 @@ export async function getFileList(query) {
         return { folder: folderData, readme, head }
       }
     }
+
+    delete identityData['@odata.context']
+    delete identityData['@odata.etag']
+    identityData.id = encryptData(identityData.id)
     return { file: identityData }
   } catch (error: any) {
     console.warn('Failed to get files, code %d, data: %s', error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
@@ -322,8 +330,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const { obfuscatedAccessToken, accessTokenExpiry, obfuscatedRefreshToken } = req.body
-    const accessToken = revealObfuscatedToken(obfuscatedAccessToken)
-    const refreshToken = revealObfuscatedToken(obfuscatedRefreshToken)
+    const accessToken = obfuscatedAccessToken
+    const refreshToken = obfuscatedRefreshToken
 
     // verify identity of the authenticated user with the Microsoft Graph API
     const { data, status } = await getAuthPersonInfo(accessToken)
@@ -404,7 +412,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { data: identityData } = await axios.get(requestUrl, {
       headers: { Authorization: `Bearer ${accessToken}` },
       params: {
-        select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+        select: 'name,size,lastModifiedDateTime,folder,file,video,image',
       },
     })
 
@@ -413,7 +421,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {
           ...{
-            select: 'name,size,id,lastModifiedDateTime,folder,file,video,image',
+            select: 'name,id,size,lastModifiedDateTime,folder,file,video,image',
             $top: siteConfig.maxItems,
           },
           ...(next ? { $skipToken: next } : {}),
@@ -422,6 +430,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       delete folderData['@odata.context']
+      folderData.value = folderData?.value?.map(item => {
+        delete item['@odata.etag']
+        item.id = encryptData(item.id)
+        return item
+      })
 
       // Extract next page token from full @odata.nextLink
       const nextPage = folderData['@odata.nextLink']
@@ -436,10 +449,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       return
     }
+    delete identityData['@odata.context']
+    delete identityData['@odata.etag']
+    identityData.id = encryptData(identityData.id)
     res.status(200).json({ file: identityData })
     return
   } catch (error: any) {
-    res.status(error?.response?.code ?? 500).json({ error: error?.response?.data ?? 'Internal server error.' })
+    res.status(error?.response?.status ?? 500).json({ error: error?.response?.data?.error ?? 'Internal server error.' })
     return
   }
 }

@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { encodePath, getAccessToken } from '.'
 import apiConfig from '../../../config/api.config'
 import siteConfig from '../../../config/site.config'
+import { encryptData } from '../../utils/oAuthHandler'
 
 /**
  * Sanitize the search query
@@ -47,13 +48,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data } = await axios.get(searchApi, {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {
-          select: 'id,name,file,folder,parentReference',
+          select: 'id,name,file,parentReference',
           top: siteConfig.maxItems,
         },
       })
-      res.status(200).json(data.value)
+      res.status(200).json(data.value.map(item => {
+        delete item['@odata.type']
+        item.file = item.file ? true : false;
+        delete item?.parentReference?.driveId
+        delete item?.parentReference?.driveType
+        delete item?.parentReference?.siteId
+        item.id = encryptData(item.id);
+        if (item.parentReference.id) {
+          item.parentReference.id = encryptData(item?.parentReference?.id)
+        }
+        return item
+      }))
     } catch (error: any) {
-      res.status(error?.response?.status ?? 500).json({ error: error?.response?.data ?? 'Internal server error.' })
+      res.status(error?.response?.status ?? 500).json({ error: error?.response?.data?.error ?? 'Internal server error.' })
+      console.log(error)
     }
   } else {
     res.status(200).json([])

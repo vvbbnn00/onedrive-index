@@ -65,9 +65,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       headers: { Authorization: `Bearer ${accessToken}` },
       params: {
         // OneDrive international version fails when only selecting the downloadUrl (what a stupid bug)
-        select: 'id,size,@microsoft.graph.downloadUrl',
+        select: 'id,name,size,@microsoft.graph.downloadUrl',
       },
     })
+
+    // For security reasons, .password files cant be downloaded.
+    if (data?.name === '.password') {
+      res.status(403).json({ error: 'For security reasons, this file can\'t be downloaded.' })
+      return
+    }
 
     if ('@microsoft.graph.downloadUrl' in data) {
       // Only proxy raw file content response for files up to 4MB
@@ -87,7 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     return
   } catch (error: any) {
-    res.status(error?.response?.status ?? 500).json({ error: error?.response?.data ?? 'Internal server error.' })
+    res.status(error?.response?.status ?? 500).json({ error: error?.response?.data?.error ?? 'Internal server error.' })
     return
   }
 }
