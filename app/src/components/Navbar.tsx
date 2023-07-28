@@ -129,8 +129,8 @@ const Navbar = () => {
       </div>
 
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" open={isOpen} onClose={() => setIsOpen(false)}>
-          <div className="min-h-screen px-4 text-center">
+        <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-md !bg-opactiy-50" open={isOpen} onClose={() => setIsOpen(false)}>
+          <div className="min-h-screen px-4 text-center !bg-opactiy-50">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-100"
@@ -140,11 +140,11 @@ const Navbar = () => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-gray-50 dark:bg-gray-800" />
+              <Dialog.Overlay className="fixed inset-0 bg-gray-50 dark:bg-gray-800 !bg-opacity-50" />
             </Transition.Child>
 
             {/* This element is to trick the browser into centering the modal contents. */}
-            <span className="inline-block h-screen align-middle" aria-hidden="true">
+            <span className="inline-block h-screen align-middle backdrop-blur-md !bg-opactiy-80" aria-hidden="true">
               &#8203;
             </span>
             <Transition.Child
@@ -156,7 +156,7 @@ const Navbar = () => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle transition-all dark:bg-gray-900">
+              <div className="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle transition-all dark:bg-gray-900 backdrop-blur-md !bg-opacity-80">
                 <Dialog.Title className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {t('Clear all tokens?')}
                 </Dialog.Title>

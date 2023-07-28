@@ -1,5 +1,7 @@
 @tailwind base;
+
 @tailwind components;
+
 @tailwind utilities;
 
 @layer utilities {
@@ -17,9 +19,9 @@
 body {
   background-image: url('/bg.webp');
   background-size: cover;
-  background-repeat: no-repeat; 
+  background-repeat: no-repeat;
   background-color: #f2f2f2;
-  background-attachment: fixed; 
+  background-attachment: fixed;
 }
 
 .react-pdf__Page__canvas {
@@ -29,10 +31,52 @@ body {
 .markdown-body ul {
   @apply list-disc;
 }
+
 .markdown-body ol {
   @apply list-decimal;
 }
+
 pre[class*='language-'],
 code[class*='language-'] {
   @apply font-mono !important;
+}
+
+
+/* 滚动条整体部分 */
+*::-webkit-scrollbar {
+  width: 8px; /* 滚动条宽度 */
+  height: 8px; /* 滚动条高度 */
+}
+
+/* 滚动条里面的滑块 */
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(169, 169, 169, 0.5); /* 滑块颜色为半透明淡灰色 */
+  border-radius: 4px; /* 滑块的圆角半径 */
+  background-clip: padding-box; /* 不让背景色渗透到边框 */
+  border: 2px solid transparent; /* 边框透明 */
+}
+
+/* 滚动条的轨道 */
+*::-webkit-scrollbar-track {
+  background-color: transparent; /* 滚动条轨道背景透明 */
+}
+
+/* 滚动条悬浮效果 */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(169, 169, 169, 0.9); /* 滑块颜色为淡灰色 */
+}
+
+/* 适配 dark 主题 */
+@media (prefers-color-scheme: dark) {
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5); /* 滑块颜色为半透明白色 */
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.9); /* 滑块颜色为白色 */
+  }
+
+  *::-webkit-scrollbar {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
 }
