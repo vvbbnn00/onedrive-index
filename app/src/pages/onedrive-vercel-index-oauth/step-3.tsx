@@ -98,7 +98,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         }, 2000)
       })
       .catch(data => {
-        console.log(data);
+        // console.log(data);
         setButtonError(true)
         setButtonContent(
           <div>

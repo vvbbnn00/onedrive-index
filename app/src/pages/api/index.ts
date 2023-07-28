@@ -58,7 +58,7 @@ export async function getAccessToken(): Promise<string> {
 
   // Return in storage access token if it is still valid
   if (typeof accessToken === 'string') {
-    console.log('Fetch access token from storage.')
+    // console.log('Fetch access token from storage.')
     return accessToken
   }
 
@@ -259,7 +259,7 @@ export async function getFileList(query) {
   }
 
   const requestPath = encodePath(cleanPath)
-  console.debug('requestPath SSRAPI', requestPath);
+  // console.debug('requestPath SSRAPI', requestPath);
 
   // Handle response from OneDrive API
   const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
