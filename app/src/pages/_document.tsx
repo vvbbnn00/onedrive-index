@@ -6,7 +6,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <meta httpEquiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; img-src *; script-src 'self' 'unsafe-eval' va.vercel-scripts.com" />
+          <meta httpEquiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; img-src *; script-src 'self' 'unsafe-eval' va.vercel-scripts.com static.cloudflareinsights.com" />
           <meta name="description" content="Naruse Galgame Space. Sharing personal galgame resources." />
           <link rel="apple-touch-icon" sizes="57x57" href="public/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
