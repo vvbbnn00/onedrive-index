@@ -51,6 +51,11 @@ export function encodePath(path: string): string {
 export async function getAccessToken(): Promise<string> {
   const { accessToken, refreshToken } = await getOdAuthTokens()
 
+  if (!apiConfig.clientId || !clientSecret) {
+    console.error('clientId or clientSecret not set!')
+    return ''
+  }
+
   // Return in storage access token if it is still valid
   if (typeof accessToken === 'string') {
     console.log('Fetch access token from storage.')

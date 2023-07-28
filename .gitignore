@@ -1,1 +1,3 @@
 web.env
+.env*
+.vscode

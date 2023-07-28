@@ -3,8 +3,8 @@
 A docker version of onedrive index, which is developed based on [ondrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index) with bug fix.
 
 
-## web.env
-To build the docker image, you should first create `web.env` file.
+## .env
+To build the docker image, you should first create `.env` file.
 
 Here's an example.
 ```env
