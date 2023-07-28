@@ -66,11 +66,6 @@
   line-height: 1.5;
   word-wrap: break-word;
   padding: 5px;
-  font-family: 'Noto Sans', sans-serif;
-  font-family: 'Noto Sans HK', sans-serif;
-  font-family: 'Noto Sans JP', sans-serif;
-  font-family: 'Noto Sans TC', sans-serif;
-  font-family: 'Noto Sans SC', sans-serif;
 }
 
 .markdown-body details {

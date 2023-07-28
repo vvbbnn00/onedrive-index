@@ -116,6 +116,7 @@
     "Where is the auth code? Did you follow step 2 you silly donut?": "認証コードはどこですか？ステップ 2 を守りましたか？おバカさんドーナツ！o(￣ヘ￣o＃)",
     "Whoops, looks like we got a problem: {{error}}.": "おっと、問題が発生したようです：{{error}}。",
     "Failed": "失敗しました",
-    "You don't have the permission to do that.": "それを行う権限がありません。"
+    "You don't have the permission to do that.": "それを行う権限がありません。",
+    "Language": "言語"
   }
   

@@ -114,5 +114,6 @@
   "Where is the auth code? Did you follow step 2 you silly donut?": "授權碼在哪裡？你有跟著第 2 步完成了嗎？o(￣ヘ￣o＃)",
   "Whoops, looks like we got a problem: {{error}}.": "Whoops，看來現在遇到一些問題：{{error}}",
   "Failed": "失敗",
-  "You don't have the permission to do that.": "你沒有這麼做的特權。"
+  "You don't have the permission to do that.": "你沒有這麼做的特權。",
+  "Language": "語言"
 }

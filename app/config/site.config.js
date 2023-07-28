@@ -34,10 +34,7 @@ module.exports = {
   googleFontMono: 'Fira Mono',
   // googleFontLinks -  an array of links for referencing the google font assets.
   googleFontLinks: [
-    'https://fonts.googleapis.com/css2?family=Fira+Mono&family=Inter:wght@400;500;700&display=swap',
-    'https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+HK&family=Noto+Sans+JP&family=Noto+Sans+TC&family=Noto+Sans+SC&display=swapF',
-    'https://fonts.googlefonts.cn/css2?family=Fira+Mono&family=Inter:wght@400;500;700&display=swap',
-    'https://fonts.googlefonts.cn/css2?family=Noto+Sans&family=Noto+Sans+HK&family=Noto+Sans+JP&family=Noto+Sans+TC&family=Noto+Sans+SC&display=swapF'
+    'https://fonts.googlefonts.cn/css2?family=Fira+Mono&family=Inter:wght@400;500;700&display=swap', // for overseas, use fonts.googleapis.com
   ],
 
   // [OPTIONAL] The footer component of your website. You can write HTML here, but you need to escape double

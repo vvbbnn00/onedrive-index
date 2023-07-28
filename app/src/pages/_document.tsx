@@ -6,6 +6,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
+          <meta httpEquiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; img-src *; script-src 'self' 'unsafe-eval' va.vercel-scripts.com" />
           <meta name="description" content="Naruse Galgame Space. Sharing personal galgame resources." />
           <link rel="apple-touch-icon" sizes="57x57" href="public/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
@@ -16,7 +17,7 @@ class MyDocument extends Document {
           <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png" />
           <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png" />
           <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png" />
-          <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png" />
+          <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png" />
           <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
           <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
