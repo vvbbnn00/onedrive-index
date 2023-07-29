@@ -11,6 +11,7 @@ function encryptToken(token: string, nonce?: string): string {
 
 // Fetch stored token from localStorage and encrypt with SHA384
 export function getStoredToken(path: string): string | null {
+  // console.log(matchProtectedRoute(path))
   const storedToken =
     typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(matchProtectedRoute(path)) as string) : ''
   return storedToken ? encryptToken(storedToken) : null

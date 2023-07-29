@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data } = await axios.get(searchApi, {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {
-          select: 'id,name,file,parentReference',
+          select: 'id,file,parentReference',
           top: siteConfig.maxItems,
         },
       })

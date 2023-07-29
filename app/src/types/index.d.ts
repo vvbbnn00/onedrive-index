@@ -65,5 +65,6 @@ export type OdDriveItem = {
   '@odata.etag': string
   id: string
   name: string
-  parentReference: { driveId: string; driveType: string; id: string; path: string }
+  parentReference: { driveId: string; driveType: string; id: string; path: string },
+  file?: OdFileObject
 }

@@ -14,6 +14,7 @@ import siteConfig from '../../config/site.config'
 import SearchModal from './SearchModal'
 import SwitchLang from './SwitchLang'
 import useDeviceOS from '../utils/useDeviceOS'
+import { getStoredToken } from '../utils/protectedRouteHandler'
 
 const Navbar = () => {
   const router = useRouter()
@@ -49,6 +50,7 @@ const Navbar = () => {
 
     siteConfig.protectedRoutes.forEach(r => {
       localStorage.removeItem(r)
+      document.cookie = `token_${encodeURIComponent(r)}= ;expires=${(new Date()).toUTCString()}`
     })
 
     toast.success(t('Cleared all tokens'))
@@ -168,12 +170,17 @@ const Navbar = () => {
                 </div>
 
                 <div className="mt-4 max-h-32 overflow-y-scroll font-mono text-sm dark:text-gray-100">
-                  {siteConfig.protectedRoutes.map((r, i) => (
-                    <div key={i} className="flex items-center space-x-1">
-                      <FontAwesomeIcon icon="key" />
-                      <span className="truncate">{r}</span>
-                    </div>
-                  ))}
+                  {siteConfig.protectedRoutes.map((r, i) => {
+                    return getStoredToken(r.split('/')
+                      .map(p => encodeURIComponent(p))
+                      .join('/')) &&
+                      (
+                        <div key={i} className="flex items-center space-x-1">
+                          <FontAwesomeIcon icon="key" />
+                          <span className="truncate">{r}</span>
+                        </div>
+                      )
+                  })}
                 </div>
 
                 <div className="mt-8 flex items-center justify-end">
