@@ -173,7 +173,7 @@ export async function checkAuthRoute(
       odProtectedToken = cachedToken
     }
 
-    console.log(JSON.stringify(odProtectedToken), authTokenPath)
+    // console.log(JSON.stringify(odProtectedToken), authTokenPath)
 
     if (
       !compareHashedToken({
