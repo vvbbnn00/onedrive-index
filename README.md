@@ -16,3 +16,7 @@ MS_CLIENT_ID=Your Client ID
 MS_CLIENT_SECRET=Your Client Secret
 SECRET_KEY=Your Secret Key
 ```
+
+## protectedRoutes
+
+If you want to set `protectedRoutes`, please enter the complete route, **never forget the `/` at the end**, for example: `/protectedRoutes/`.

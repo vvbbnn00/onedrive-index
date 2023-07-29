@@ -2,7 +2,7 @@ import axios from 'axios'
 import useSWRInfinite from 'swr/infinite'
 
 import type { OdAPIResponse } from '../types'
-
+import { useMemo } from 'react';
 import { getStoredToken } from './protectedRouteHandler'
 
 // Common axios fetch function for use with useSWR
@@ -11,8 +11,8 @@ export async function fetcher([url, token]: [url: string, token?: string]): Prom
     return (
       await (token
         ? axios.get(url, {
-            headers: { 'od-protected-token': token },
-          })
+          headers: { 'od-protected-token': token },
+        })
         : axios.get(url))
     ).data
   } catch (err: any) {
@@ -26,16 +26,16 @@ export async function fetcher([url, token]: [url: string, token?: string]): Prom
  * @returns useSWRInfinite API
  */
 export function useProtectedSWRInfinite(path: string = '', renderedData?) {
-  const hashedToken = getStoredToken(path)
+  const hashedToken = useMemo(() => getStoredToken(path), [path]); // Memoize hashedToken based on path
 
-  async function renderedDataFetcher([url, token, index]: [url: string, token?: string, index?: Number]): Promise<any> {
+  async function renderedDataFetcher([url, index]: [url: string, index?: Number]): Promise<any> {
     if (index == 0 && renderedData) return renderedData;
     try {
       return (
-        await (token
+        await (hashedToken
           ? axios.get(url, {
-              headers: { 'od-protected-token': token },
-            })
+            headers: { 'od-protected-token': hashedToken },
+          })
           : axios.get(url))
       ).data
     } catch (err: any) {
@@ -55,10 +55,10 @@ export function useProtectedSWRInfinite(path: string = '', renderedData?) {
     if (previousPageData && !previousPageData.folder) return null
 
     // First page with no prevPageData
-    if (pageIndex === 0) return [`/api/?path=${path}`, hashedToken, pageIndex]
+    if (pageIndex === 0) return [`/api/?path=${path}`, pageIndex]
 
     // Add nextPage token to API endpoint
-    return [`/api/?path=${path}&next=${previousPageData.next}`, hashedToken, pageIndex]
+    return [`/api/?path=${path}&next=${previousPageData.next}`, pageIndex]
   }
 
   // Disable auto-revalidate, these options are equivalent to useSWRImmutable

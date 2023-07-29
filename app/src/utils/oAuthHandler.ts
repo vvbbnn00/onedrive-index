@@ -4,13 +4,21 @@ import CryptoJS from 'crypto-js'
 
 // Just a disguise to obfuscate required tokens (including but not limited to client secret,
 // access tokens, and refresh tokens), used along with the following two functions
-const AES_SECRET_KEY = process.env.SECRET_KEY ?? 'onedrive-docker-index' // Recommended to be set in environment
+const AES_SECRET_KEY = process.env.SECRET_KEY // must be set in environment
 export function encryptData(data: string): string {
+  if (!AES_SECRET_KEY) {
+    console.error("AES_SECRET_KEY not set.")
+    throw new Error("AES_SECRET_KEY not set.")
+  }
   const cipherText = CryptoJS.AES.encrypt(data, AES_SECRET_KEY);
   return cipherText.toString();
 }
 
 export function decryptData(obfuscated: string): string {
+  if (!AES_SECRET_KEY) {
+    console.error("AES_SECRET_KEY not set.")
+    throw new Error("AES_SECRET_KEY not set.")
+  }
   const bytes = CryptoJS.AES.decrypt(obfuscated, AES_SECRET_KEY);
   const originalText = bytes.toString(CryptoJS.enc.Utf8);
   return originalText;
