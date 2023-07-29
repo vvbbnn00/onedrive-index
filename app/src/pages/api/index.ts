@@ -150,21 +150,35 @@ export async function checkAuthRoute(
   }
 
   try {
-    const token = await axios.get(`${apiConfig.driveApi}/root${encodePath(authTokenPath)}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      params: {
-        select: '@microsoft.graph.downloadUrl,file',
-      },
-    })
+    const { data: cachedToken, exists } = await getCache({ key: `TOKEN:${authTokenPath}` })
+    let odProtectedToken
+    if (!exists) {
+      const token = await axios.get(`${apiConfig.driveApi}/root${encodePath(authTokenPath)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: {
+          select: '@microsoft.graph.downloadUrl,file',
+        },
+      })
 
-    // Handle request and check for header 'od-protected-token'
-    const odProtectedToken = await axios.get(token.data['@microsoft.graph.downloadUrl'])
-    // console.log(odTokenHeader, odProtectedToken.data.trim())
+      // Handle request and check for header 'od-protected-token'
+      odProtectedToken = await axios.get(token.data['@microsoft.graph.downloadUrl'])
+      odProtectedToken = odProtectedToken.data.toString()
+      setCache({
+        key: `TOKEN:${authTokenPath}`,
+        value: odProtectedToken,
+        ex: 600
+      })
+      // console.log(odTokenHeader, odProtectedToken.data.trim())
+    } else {
+      odProtectedToken = cachedToken
+    }
+
+    console.log(JSON.stringify(odProtectedToken), authTokenPath)
 
     if (
       !compareHashedToken({
         odTokenHeader: odTokenHeader,
-        dotPassword: odProtectedToken.data.toString(),
+        dotPassword: odProtectedToken,
       })
     ) {
       return { code: 401, message: 'Password required.' }
