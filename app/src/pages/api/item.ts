@@ -78,6 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const authPath = matchProtectedRoute(path) // check if the route is protected
       let token = ''
       if (authPath) {
+        res.setHeader('Cache-Control', 'no-cache')
         token = odTokenHeaders[`token_${encodeURIComponent(authPath)}`] || ''
       }
 
