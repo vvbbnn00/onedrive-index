@@ -29,10 +29,11 @@ const Auth: FC<{ redirect: string }> = ({ redirect }) => {
           t('If you know the password, please enter it below.')}
       </p>
 
-      <div className="flex items-center space-x-2">
+      <form className="flex items-center space-x-2">
         <input
           className="flex-1 rounded border border-gray-600/10 p-2 font-mono focus:outline-none focus:ring focus:ring-blue-300 dark:bg-gray-600 dark:text-white dark:focus:ring-blue-700"
           autoFocus
+          autoComplete='password'
           type="password"
           placeholder="************"
           value={token}
@@ -52,10 +53,11 @@ const Auth: FC<{ redirect: string }> = ({ redirect }) => {
             setPersistedToken(token)
             router.reload()
           }}
+          type='button'
         >
           <FontAwesomeIcon icon="arrow-right" />
         </button>
-      </div>
+      </form>
     </div>
   )
 }
