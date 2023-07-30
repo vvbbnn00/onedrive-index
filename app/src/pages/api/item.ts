@@ -79,6 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let token = ''
       if (authPath) {
         res.setHeader('Cache-Control', 'no-cache')
+        res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
         token = odTokenHeaders[`token_${encodeURIComponent(authPath)}`] || ''
       }
 

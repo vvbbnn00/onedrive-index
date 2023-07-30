@@ -55,6 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Conversely, protected routes are not allowed to serve from cache.
   if (message !== '') {
     res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
   }
 
   await runCorsMiddleware(req, res)

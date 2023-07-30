@@ -140,13 +140,13 @@ export async function checkAuthRoute(
   cleanPath: string,
   accessToken: string,
   odTokenHeader: string
-): Promise<{ code: 200 | 401 | 404 | 500; message: string }> {
+): Promise<{ code: 200 | 401 | 404 | 500; message: string; needAuth: boolean }> {
   // Handle authentication through .password
   const authTokenPath = getAuthTokenPath(cleanPath)
 
   // Fetch password from remote file content
   if (authTokenPath === '') {
-    return { code: 200, message: '' }
+    return { code: 200, message: '', needAuth: false }
   }
 
   try {
@@ -181,18 +181,18 @@ export async function checkAuthRoute(
         dotPassword: odProtectedToken,
       })
     ) {
-      return { code: 401, message: 'Password required.' }
+      return { code: 401, message: 'Password required.', needAuth: true }
     }
   } catch (error: any) {
     // Password file not found, fallback to 404
     if (error?.response?.status === 404) {
-      return { code: 404, message: "You didn't set a password." }
+      return { code: 404, message: "You didn't set a password.", needAuth: true }
     } else {
-      return { code: 500, message: 'Internal server error.' }
+      return { code: 500, message: 'Internal server error.', needAuth: true }
     }
   }
 
-  return { code: 200, message: 'Authenticated.' }
+  return { code: 200, message: 'Authenticated.', needAuth: true }
 }
 
 
@@ -418,6 +418,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Conversely, protected routes are not allowed to serve from cache.
   if (message !== '') {
     res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
   }
 
   const requestPath = encodePath(cleanPath)
