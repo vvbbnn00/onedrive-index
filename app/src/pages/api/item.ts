@@ -7,7 +7,6 @@ import { decryptData, encryptData } from '../../utils/oAuthHandler'
 import assert from 'assert'
 import { matchProtectedRoute } from '../../utils/protectedRouteHandler'
 import siteConfig from '../../../config/site.config'
-import { posix as pathPosix } from 'path'
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the

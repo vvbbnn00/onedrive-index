@@ -83,11 +83,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           responseType: 'stream',
         })
         headers['Cache-Control'] = cacheControlHeader
+        // If already has attachment header in response, don't overwrite it
+        headers['Content-Disposition'] = res.getHeader('content-disposition') ?? `attachment; filename="${data['name']}"` as string
         // Send data stream as response
         res.writeHead(200, headers as AxiosResponseHeaders)
         stream.pipe(res)
       } else {
-        res.redirect(data['@microsoft.graph.downloadUrl'])
+        // Redirect to download url
+        res.redirect(302, data['@microsoft.graph.downloadUrl'] as string)
       }
     } else {
       res.status(404).json({ error: 'No download url found.' })

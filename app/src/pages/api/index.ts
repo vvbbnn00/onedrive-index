@@ -311,6 +311,14 @@ export async function getFileList(query) {
       folderData.value = folderData?.value?.map(item => {
         delete item['@odata.etag']
         item.id = encryptData(item.id)
+
+        // If filename is .password, should hide the quickXorHash and the size, add "Protected" tag
+        if (item.name === '.password') {
+          delete item.file.hashes.quickXorHash
+          item.size = 0
+          item.protected = true
+        }
+
         return item
       })
 
@@ -330,6 +338,14 @@ export async function getFileList(query) {
     delete identityData['@odata.context']
     delete identityData['@odata.etag']
     identityData.id = encryptData(identityData.id)
+
+    // If filename is .password, should hide the quickXorHash and the size
+    if (identityData.name === '.password') {
+      delete identityData.file.hashes.quickXorHash
+      identityData.size = 0
+      identityData.protected = true
+    }
+
     return { file: identityData }
   } catch (error: any) {
     console.warn('Failed to get files, code %d, data: %s', error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
@@ -421,6 +437,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
   }
 
+  // Path shoudn't cotain :
+  if (cleanPath.includes(':')) {
+    res.status(400).json({ error: 'Path invalid.' })
+    return
+  }
+
   const requestPath = encodePath(cleanPath)
   // Handle response from OneDrive API
   const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
@@ -453,6 +475,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       folderData.value = folderData?.value?.map(item => {
         delete item['@odata.etag']
         item.id = encryptData(item.id)
+
+        // If filename is .password, should hide the quickXorHash and the size, add "Protected" tag
+        if (item.name === '.password') {
+          delete item.file.hashes.quickXorHash
+          item.size = 0
+          item.protected = true
+        }
+
         return item
       })
 
@@ -472,6 +502,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     delete identityData['@odata.context']
     delete identityData['@odata.etag']
     identityData.id = encryptData(identityData.id)
+
+    // If filename is .password, should hide the quickXorHash and the size
+    if (identityData.name === '.password') {
+      delete identityData.file.hashes.quickXorHash
+      identityData.size = 0
+      identityData.protected = true
+    }
+
     res.status(200).json({ file: identityData })
     return
   } catch (error: any) {
