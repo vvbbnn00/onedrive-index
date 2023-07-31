@@ -33,7 +33,7 @@ const GridItem = ({ c, path }: { c: OdFolderChildren; path: string }) => {
           />
         ) : (
           <div className="relative flex h-full w-full items-center justify-center rounded-lg">
-            {c.protected ? <FontAwesomeIcon icon={['fav', 'lock']} /> : <ChildIcon child={c} />}
+            {c.protected ? <FontAwesomeIcon icon={['fas', 'lock']} /> : <ChildIcon child={c} />}
             <span className="absolute bottom-0 right-0 m-1 font-medium text-gray-700 dark:text-gray-500">
               {c.folder?.childCount}
             </span>
