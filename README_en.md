@@ -4,13 +4,13 @@
 
 ## 🤔 What is this?
 
-This project is a secondary development based on [ondrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index). Since the original project is already in an `Archive` state, the main purpose of this project is to fix serious security vulnerabilities in the original project (see [Security Issue Fixes](#❗Security-Issue-Fixes)), optimize the interface and performance, and provide a deployment solution in a `Docker` environment. This project inherits all the features of the original project, and you can refer to the [original project's documentation](https://ovi.swo.moe/zh/docs/getting-started) for customization.
+This project is a secondary development based on [ondrive-vercel-index](https://github.com/spencerwooo/onedrive-vercel-index). Since the original project is already in an `Archive` state, the main purpose of this project is to fix serious security vulnerabilities in the original project (see [Security Issue Fixes](#-Security-Issue-Fixes)), optimize the interface and performance, and provide a deployment solution in a `Docker` environment. This project inherits all the features of the original project, and you can refer to the [original project's documentation](https://ovi.swo.moe/zh/docs/getting-started) for customization.
 
-As a **very amateur front-end and back-end developer**, I am not as skilled as the great developers who participated in the development of the original project, so I cannot guarantee the quality of this forked project. Also, because the initial purpose of this project was to build my own personal site, it contains many customized content that you can adjust as needed. You can find help on customizing your site in the [Customize Your Site](#🏞-Customize-Your-Site) section below.
+As a **very amateur front-end and back-end developer**, I am not as skilled as the great developers who participated in the development of the original project, so I cannot guarantee the quality of this forked project. Also, because the initial purpose of this project was to build my own personal site, it contains many customized content that you can adjust as needed. You can find help on customizing your site in the [Customize Your Site](#-Customize-Your-Site) section below.
 
 ## ❓ How is it different from `onedrive-vercel-index`?
 
-- Fixed several [security issues](#❗Security-Issue-Fixes)
+- Fixed several [security issues](#-Security-Issue-Fixes)
 - Provided a Docker deployment solution
 - Improved Redis cache utilization and website performance
 - Enhanced user security
