@@ -30,7 +30,7 @@
     "ioredis": "^5.3.0",
     "jszip": "^3.10.1",
     "mpegts.js": "^1.7.2",
-    "next": "^13.1.6",
+    "next": "^13.5.1",
     "next-i18next": "^13.0.3",
     "nextjs-progressbar": "^0.0.16",
     "plyr-react": "^5.1.2",
