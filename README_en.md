@@ -39,6 +39,7 @@ REDIS_URL=redis://redis:6379  # Normally no need to modify, if you need to use a
 MS_CLIENT_ID=Your Client ID  # Your ClientID
 MS_CLIENT_SECRET=Your Client Secret  # Your ClientSecret
 SECRET_KEY=Your Secret Key  # Secret Key used for AES encryption, it must be kept absolutely confidential
+PROTECTED_ROUTES=["/protectedRoutes/"] # Protected paths, you can modify them according to your own situation, they need to be in JSON format
 ```
 **Note that `ClientSecret` is unencrypted!**
 

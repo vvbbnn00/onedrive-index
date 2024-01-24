@@ -38,6 +38,7 @@ REDIS_URL=redis://redis:6379  # 正常情况下无需修改，若您需要使用
 MS_CLIENT_ID=Your Client ID  # 您的ClientID
 MS_CLIENT_SECRET=Your Client Secret  # 您的ClientSecret
 SECRET_KEY=Your Secret Key  # AES加密用的Secret Key，它是绝对保密的
+PROTECTED_ROUTES=["/protectedRoutes/"]  # 受保护的路径，您可以根据自己的情况修改，需要是JSON格式
 ```
 **注意`ClientSecret`是未经加密的！**
 
