@@ -9,13 +9,11 @@ import { useTranslation } from 'next-i18next'
 import { getBaseUrl } from '../utils/getBaseUrl'
 import { formatModifiedDateTime } from '../utils/fileDetails'
 import { Checkbox, ChildIcon, ChildName, Downloading } from './FileListing'
-import { getStoredToken } from '../utils/protectedRouteHandler'
 
 const GridItem = ({ c, path }: { c: OdFolderChildren; path: string }) => {
   // We use the generated medium thumbnail for rendering preview images (excluding folders)
-  const hashedToken = getStoredToken(path)
   const thumbnailUrl =
-    'folder' in c ? null : `/api/thumbnail/?path=${path}&size=medium${hashedToken ? `&odpt=${hashedToken}` : ''}`
+    'folder' in c ? null : `/api/thumbnail/?path=${path}&size=medium`
 
   // Some thumbnails are broken, so we check for onerror event in the image component
   const [brokenThumbnail, setBrokenThumbnail] = useState(false)
@@ -69,7 +67,6 @@ const FolderGridLayout = ({
   toast,
 }) => {
   const clipboard = useClipboard()
-  const hashedToken = getStoredToken(path)
 
   const { t } = useTranslation()
 
@@ -152,8 +149,7 @@ const FolderGridLayout = ({
                       className="cursor-pointer rounded px-1.5 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
                       onClick={() => {
                         clipboard.copy(
-                          `${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''
-                          }`
+                          `${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}${c?.odpt ? `&odpt=${c?.odpt}` : ''}`
                         )
                         toast.success(t('Copied raw file permalink.'))
                       }}
@@ -163,8 +159,7 @@ const FolderGridLayout = ({
                     <a
                       title={t('Download file')}
                       className="cursor-pointer rounded px-1.5 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
-                      href={`${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''
-                        }`}
+                      href={`${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}`}
                     >
                       <FontAwesomeIcon icon={['far', 'arrow-alt-circle-down']} />
                     </a>

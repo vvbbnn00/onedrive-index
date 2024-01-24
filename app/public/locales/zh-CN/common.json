@@ -117,5 +117,6 @@
   "Whoops, looks like we got a problem: {{error}}.": "Whoops，看来我们遇到了一个问题：{{error}}",
   "Failed": "失败",
   "You don't have the permission to do that.": "你没有权限这么做。",
-  "Language": "语言"
+  "Language": "语言",
+  "Failed.WrongPassword": "[认证失败] 密码错误"
 }

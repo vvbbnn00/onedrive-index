@@ -14,7 +14,7 @@ import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer, PreviewContainer } from './Containers'
 import BasicInfoPanel from './BasicInfoPanel'
 
-const CodePreview: FC<{ file: any }> = ({ file }) => {
+const CodePreview: FC<{ file: any, hashedToken?: string }> = ({ file, hashedToken }) => {
   const { asPath } = useRouter()
   const { response: content, error, validating } = useFileContent(`/api/raw/?path=${asPath}`, asPath)
 
@@ -36,7 +36,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
           <Loading loadingText={t('Loading file content...')} />
         </div>
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup hashedToken={hashedToken}/>
         </DownloadBtnContainer>
       </>
     )
@@ -55,7 +55,7 @@ const CodePreview: FC<{ file: any }> = ({ file }) => {
         </SyntaxHighlighter>
       </div>
       <DownloadBtnContainer>
-        <DownloadButtonGroup />
+        <DownloadButtonGroup hashedToken={hashedToken} />
       </DownloadBtnContainer>
     </>
   )

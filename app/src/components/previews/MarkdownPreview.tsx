@@ -21,8 +21,9 @@ const MarkdownPreview: FC<{
   file: any
   path: string
   standalone?: boolean
-  setContent?: string
-}> = ({ file, path, standalone = true, setContent }) => {
+  setContent?: string,
+  hashedToken?: string
+}> = ({ file, path, standalone = true, setContent, hashedToken }) => {
   // The parent folder of the markdown file, which is also the relative image folder
   const parentPath = standalone ? path.substring(0, path.lastIndexOf('/')) : path
 
@@ -105,7 +106,7 @@ const MarkdownPreview: FC<{
         </div>
         {standalone && (
           <DownloadBtnContainer>
-            <DownloadButtonGroup />
+            <DownloadButtonGroup hashedToken={hashedToken} />
           </DownloadBtnContainer>
         )}
       </>
@@ -134,7 +135,7 @@ const MarkdownPreview: FC<{
       </div>
       {standalone && (
         <DownloadBtnContainer>
-          <DownloadButtonGroup />
+          <DownloadButtonGroup hashedToken={hashedToken} />
         </DownloadBtnContainer>
       )}
     </div>

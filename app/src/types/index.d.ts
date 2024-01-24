@@ -7,6 +7,7 @@ export type OdFolderObject = {
   '@odata.count': number
   '@odata.nextLink'?: string
   value: Array<{
+    odpt?: string;
     id: string
     name: string
     size: number
@@ -21,6 +22,7 @@ export type OdFolderObject = {
 export type OdFolderChildren = OdFolderObject['value'][number]
 // A file object returned from the OneDrive API. This object may contain 'video' if the file is a video.
 export type OdFileObject = {
+  odpt?: string;
   name: string
   size: number
   id: string

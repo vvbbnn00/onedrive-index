@@ -117,6 +117,6 @@
     "Whoops, looks like we got a problem: {{error}}.": "おっと、問題が発生したようです：{{error}}。",
     "Failed": "失敗しました",
     "You don't have the permission to do that.": "それを行う権限がありません。",
-    "Language": "言語"
+    "Language": "言語",
+    "Failed.WrongPassword": "[エラー] パスワードが間違っています"
   }
-  

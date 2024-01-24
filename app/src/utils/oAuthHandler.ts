@@ -20,8 +20,7 @@ export function decryptData(obfuscated: string): string {
     throw new Error("AES_SECRET_KEY not set.")
   }
   const bytes = CryptoJS.AES.decrypt(obfuscated, AES_SECRET_KEY);
-  const originalText = bytes.toString(CryptoJS.enc.Utf8);
-  return originalText;
+  return bytes.toString(CryptoJS.enc.Utf8);
 }
 
 // Generate the Microsoft OAuth 2.0 authorization URL, used for requesting the authorisation code
@@ -38,19 +37,6 @@ export function generateAuthorisationUrl(): string {
   params.append('response_mode', 'query')
 
   return `${authUrl}?${params.toString()}`
-}
-
-// The code returned from the Microsoft OAuth 2.0 authorization URL is a request URL with hostname
-// http://localhost and URL parameter code. This function extracts the code from the request URL
-export function extractAuthCodeFromRedirected(url: string): string {
-  // Return empty string if the url is not the defined redirect uri
-  if (!url.startsWith(apiConfig.redirectUri)) {
-    return ''
-  }
-
-  // New URL search parameter
-  const params = new URLSearchParams(url.split('?')[1])
-  return params.get('code') ?? ''
 }
 
 // After a successful authorisation, the code returned from the Microsoft OAuth 2.0 authorization URL

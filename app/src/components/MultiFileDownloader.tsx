@@ -4,7 +4,6 @@ import JSZip from 'jszip'
 import { useTranslation } from 'next-i18next'
 
 import { fetcher } from '../utils/fetchWithSWR'
-import { getStoredToken } from '../utils/protectedRouteHandler'
 
 /**
  * A loading toast component with file download progress support
@@ -176,13 +175,12 @@ interface TraverseItem {
  * but after all children of the folder have been successfully retrieved.
  * If an error occurred in paginated fetching, all children will be dropped.
  * @param path Folder to be traversed. The path should be cleaned in advance.
+ * @param hashedToken Optional hashed token to be used for protected routes
  * @returns Array of items representing folders and files of traversed folder top-down and excluding root folder.
  * Due to top-down, Folder items are ALWAYS in front of its children items.
  * Error key in the item will contain the error when there is a handleable error.
  */
-export async function* traverseFolder(path: string): AsyncGenerator<TraverseItem, void, undefined> {
-  const hashedToken = getStoredToken(path)
-
+export async function* traverseFolder(path: string, hashedToken?: string): AsyncGenerator<TraverseItem, void, undefined> {
   // Generate the task passed to Promise.race to request a folder
   const genTask = async (i: number, path: string, next?: string) => {
     return {

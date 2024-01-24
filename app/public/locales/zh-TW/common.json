@@ -115,5 +115,6 @@
   "Whoops, looks like we got a problem: {{error}}.": "Whoops，看來現在遇到一些問題：{{error}}",
   "Failed": "失敗",
   "You don't have the permission to do that.": "你沒有這麼做的特權。",
-  "Language": "語言"
+  "Language": "語言",
+  "Failed.WrongPassword": "[錯誤] 密碼錯誤"
 }

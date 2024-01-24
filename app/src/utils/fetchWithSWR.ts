@@ -2,8 +2,6 @@ import axios from 'axios'
 import useSWRInfinite from 'swr/infinite'
 
 import type { OdAPIResponse } from '../types'
-import { useMemo } from 'react';
-import { getStoredToken } from './protectedRouteHandler'
 
 // Common axios fetch function for use with useSWR
 export async function fetcher([url, token]: [url: string, token?: string]): Promise<any> {
@@ -23,20 +21,15 @@ export async function fetcher([url, token]: [url: string, token?: string]): Prom
 /**
  * Paging with useSWRInfinite + protected token support
  * @param path Current query directory path
+ * @param renderedData
  * @returns useSWRInfinite API
  */
 export function useProtectedSWRInfinite(path: string = '', renderedData?) {
-  const hashedToken = useMemo(() => getStoredToken(path), [path]); // Memoize hashedToken based on path
-
   async function renderedDataFetcher([url, index]: [url: string, index?: Number]): Promise<any> {
     if (index == 0 && renderedData) return renderedData;
     try {
       return (
-        await (hashedToken
-          ? axios.get(url, {
-            headers: { 'od-protected-token': hashedToken },
-          })
-          : axios.get(url))
+        await (axios.get(url))
       ).data
     } catch (err: any) {
       throw { status: err.response.status, message: err.response.data }

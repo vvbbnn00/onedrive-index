@@ -10,7 +10,6 @@ import { getBaseUrl } from '../utils/getBaseUrl'
 import { humanFileSize, formatModifiedDateTime } from '../utils/fileDetails'
 
 import { Downloading, Checkbox, ChildIcon, ChildName } from './FileListing'
-import { getStoredToken } from '../utils/protectedRouteHandler'
 
 const FileListItem: FC<{ fileContent: OdFolderChildren }> = ({ fileContent: c }) => {
   return (
@@ -52,7 +51,6 @@ const FolderListLayout = ({
   toast,
 }) => {
   const clipboard = useClipboard()
-  const hashedToken = getStoredToken(path)
 
   const { t } = useTranslation()
 
@@ -157,7 +155,7 @@ const FolderListLayout = ({
                   className="cursor-pointer rounded px-1.5 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
                   onClick={() => {
                     clipboard.copy(
-                      `${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''}`
+                      `${getBaseUrl()}/api/raw/?path=${getItemPath(c.name)}${c?.odpt ? `&odpt=${c?.odpt}` : ''}`
                     )
                     toast.success(t('Copied raw file permalink.'))
                   }}
@@ -167,7 +165,7 @@ const FolderListLayout = ({
                 <a
                   title={t('Download file')}
                   className="cursor-pointer rounded px-1.5 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
-                  href={`/api/raw/?path=${getItemPath(c.name)}${hashedToken ? `&odpt=${hashedToken}` : ''}`}
+                  href={`/api/raw/?path=${getItemPath(c.name)}`}
                 >
                   <FontAwesomeIcon icon={['far', 'arrow-alt-circle-down']} />
                 </a>

@@ -16,7 +16,6 @@ import { LoadingIcon } from './Loading'
 import { getFileIcon } from '../utils/getFileIcon'
 import { fetcher } from '../utils/fetchWithSWR'
 import siteConfig from '../../config/site.config'
-import { getStoredToken } from '../utils/protectedRouteHandler'
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the
@@ -48,15 +47,6 @@ function mapAbsolutePath(path: string): string {
 function useDriveItemSearch() {
   const [query, setQuery] = useState('')
   const searchDriveItem = async (q: string) => {
-    // Set query cookie before request
-    const expire = new Date();
-    expire.setMinutes(expire.getMinutes() + 10);
-    for (const path of siteConfig.protectedRoutes) {
-      document.cookie = `token_${encodeURIComponent(path)}=${getStoredToken(path.split('/')
-        .map(p => encodeURIComponent(p))
-        .join('/')) ?? ''}; expires=${expire.toUTCString()}; path=/`;
-    }
-
     const { data } = await axios.get<OdSearchResult>(`/api/search/?q=${q}`)
 
     // Map parentReference to the absolute path of the search result

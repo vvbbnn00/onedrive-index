@@ -4,3 +4,6 @@ app/node_modules
 app/.gitignore
 app/README.md
 app/LICENSE
+app/.env
+.env
+.env-*

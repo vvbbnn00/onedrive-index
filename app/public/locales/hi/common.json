@@ -114,5 +114,6 @@
   "Where is the auth code? Did you follow step 2 you silly donut?": "ऑथ कोड कहां है? क्या आपने चरण 2 का पालन किया, मूर्ख डोनट?",
   "Whoops, looks like we got a problem: {{error}}.": "ओह, ऐसा लगता है कि हमें कोई समस्या हो गई है：{{error}}",
   "You don't have the permission to do that.": "आपको उसे करने की अनुमति नहीं है।",
-  "Language": "भाषा"
+  "Language": "भाषा",
+  "Failed.WrongPassword": "[त्रुटि] गलत पासवर्ड"
 }

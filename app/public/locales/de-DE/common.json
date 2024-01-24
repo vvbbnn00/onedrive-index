@@ -120,5 +120,6 @@
   "Where is the auth code? Did you follow step 2 you silly donut?": "Wo ist der Auth-Code? Hast du Schritt 2 befolgt, du alberner Donut?",
   "Whoops, looks like we got a problem: {{error}}.": "Ups, sieht aus als hätten wir ein Problem: {{error}}.",
   "You don't have the permission to do that.": "Du hast keine Berechtigung, das zu tun.",
-  "Language": "Sprache"
+  "Language": "Sprache",
+  "Failed.WrongPassword": "[Fehler] Falsches Passwort"
 }

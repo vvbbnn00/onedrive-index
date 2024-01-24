@@ -118,5 +118,6 @@
   "Where is the auth code? Did you follow step 2 you silly donut?": "Yetkilendirme kodu nerede? 2. adımı izledin mi seni Aptal ?",
   "Whoops, looks like we got a problem: {{error}}.": "Hata! Bir sorunumuz var gibi görünüyor: {{error}}.",
   "You don't have the permission to do that.": "Bunu yapmak için izniniz yok.",
-  "Language": "Dil"
+  "Language": "Dil",
+  "Failed.WrongPassword": "[Hata] Parola Yanlış"
 }

@@ -121,5 +121,6 @@
   "Whoops, looks like we got a problem: {{error}}.": "Whoops, looks like we got a problem: {{error}}.",
   "Failed": "Failed",
   "You don't have the permission to do that.": "You don't have the permission to do that.",
-  "Language": "Language"
+  "Language": "Language",
+  "Failed.WrongPassword": "[Failed] Wrong password"
 }
