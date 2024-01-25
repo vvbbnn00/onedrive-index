@@ -6,7 +6,8 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <meta httpEquiv="Content-Security-Policy" content="default-src * 'unsafe-inline' blob:; img-src * blob:; font-src * blob: res:; script-src 'self' 'unsafe-eval' va.vercel-scripts.com static.cloudflareinsights.com" />
+          <meta httpEquiv="Content-Security-Policy"
+                content="default-src * 'unsafe-inline' blob:; img-src * blob:; font-src * blob: res:; script-src 'self' 'unsafe-eval' 'unsafe-inline' va.vercel-scripts.com static.cloudflareinsights.com" />
           <meta name="description" content="Naruse Galgame Space. Sharing personal galgame resources." />
           <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
@@ -28,13 +29,22 @@ class MyDocument extends Document {
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.googlefonts.cn" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-          {siteConfig.googleFontLinks.map(link => (
-            <link key={link} rel="stylesheet" href={link} />
-          ))}
+          <script dangerouslySetInnerHTML={{
+            __html: `
+            document.addEventListener('DOMContentLoaded', function() {
+              ${siteConfig.googleFontLinks.map(link => `
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = '${link}';
+                document.head.appendChild(link);
+              `).join('')}
+            });
+          `
+          }} />
         </Head>
         <body>
-          <Main />
-          <NextScript />
+        <Main />
+        <NextScript />
         </body>
       </Html>
     )
