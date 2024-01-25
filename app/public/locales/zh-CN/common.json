@@ -48,6 +48,7 @@
   "Failed to download folder {{path}}: {{status}} {{message}} Skipped it to continue.": "下载文件夹 {{path}} 失败：{{status}} {{message}} 已忽略此错误并继续下载。",
   "Failed to download folder.": "下载文件夹失败。",
   "Failed to download selected files.": "下载选定文件失败。",
+  "Failed.WrongPassword": "[错误] 密码错误",
   "File is empty.": "文件为空。",
   "File size": "文件大小",
   "Filename": "文件名",

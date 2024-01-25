@@ -50,6 +50,7 @@
   "Failed to download folder {{path}}: {{status}} {{message}} Skipped it to continue.": "Failed to download folder {{path}}: {{status}} {{message}} Skipped it to continue.",
   "Failed to download folder.": "Failed to download folder.",
   "Failed to download selected files.": "Failed to download selected files.",
+  "Failed.WrongPassword": "[Failed] Wrong password.",
   "File is empty.": "File is empty.",
   "File size": "File size",
   "Filename": "Filename",

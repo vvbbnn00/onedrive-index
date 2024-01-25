@@ -48,6 +48,7 @@
   "Failed to download folder {{path}}: {{status}} {{message}} Skipped it to continue.": "フォルダ {{path}} のダウンロードに失敗しました: {{status}} {{message}} 続行するためにスキップしました。",
   "Failed to download folder.": "フォルダのダウンロードに失敗しました。",
   "Failed to download selected files.": "選択したファイルのダウンロードに失敗しました。",
+  "Failed.WrongPassword": "[エラー] パスワードが間違っています。",
   "File is empty.": "ファイルは空です。",
   "File size": "ファイルサイズ",
   "Filename": "ファイル名",
