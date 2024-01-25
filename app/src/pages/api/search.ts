@@ -5,6 +5,7 @@ import { encodePath, getAccessToken } from '.'
 import apiConfig from '../../../config/api.config'
 import siteConfig from '../../../config/site.config'
 import { encryptData } from '../../utils/oAuthHandler'
+import { now } from '../../utils/loggerHelper'
 
 /**
  * Sanitize the search query
@@ -39,6 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Cache-Control', apiConfig.cacheControlHeader)
 
   if (typeof searchQuery === 'string') {
+    console.info(`[${now()}][SEARCH] Query: %s`, searchQuery)
+
     // Construct Microsoft Graph Search API URL, and perform search only under the base directory
     const searchRootPath = encodePath('/')
     const encodedPath = searchRootPath === '' ? searchRootPath : searchRootPath + ':'

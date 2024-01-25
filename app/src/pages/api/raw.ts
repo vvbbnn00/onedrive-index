@@ -8,6 +8,7 @@ import {driveApi, cacheControlHeader} from '../../../config/api.config'
 import {encodePath, getAccessToken, checkAuthRoute} from '.'
 import {Session} from "../../utils/odAuthTokenStore";
 import {compareHashedToken} from "../../utils/protectedRouteHandler";
+import {now} from "../../utils/loggerHelper";
 
 // CORS middleware for raw links: https://nextjs.org/docs/api-routes/api-middlewares
 export function runCorsMiddleware(req: NextApiRequest, res: NextApiResponse) {
@@ -66,6 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await runCorsMiddleware(req, res)
     try {
+        console.info(`[${now()}][${needAuth ? 'PRIVATE' : 'PUBLIC'}][Path:${cleanPath}][Proxy: ${proxy}][ODPT: ${odTokenHeader ? 'YES' : 'NO'}] Download File.`)
         // Handle response from OneDrive API
         const requestUrl = `${driveApi}/root${encodePath(cleanPath)}`
         const {data} = await axios.get(requestUrl, {

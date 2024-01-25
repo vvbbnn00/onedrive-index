@@ -168,7 +168,7 @@ export async function checkAuthRoute(
             const {data: cachedToken, exists} = await getCache({key: `TOKEN:${authTokenPath}`})
 
             authPath = authTokenPath
-            if (!exists && cachedToken === null) {
+            if (!exists) {
                 const token = await axios.get(`${apiConfig.driveApi}/root${encodePath(authTokenPath)}`, {
                     headers: {Authorization: `Bearer ${accessToken}`},
                     params: {
@@ -187,6 +187,9 @@ export async function checkAuthRoute(
                 })
                 break;
             } else {
+                if (!cachedToken || cachedToken === '') {
+                    continue;
+                }
                 odProtectedToken = cachedToken!
                 break;
             }
@@ -196,6 +199,12 @@ export async function checkAuthRoute(
             // Password file not found, fallback to 404
             if (error?.response?.status === 404) {
                 // console.warn('Password file not found.', authTokenPath)
+                setCache({
+                    key: `TOKEN:${authTokenPath}`,
+                    value: null,
+                    ex: 600
+                }).then(() => {
+                })
             } else {
                 console.warn('[axios.get] .password', JSON.stringify(error.message))
             }

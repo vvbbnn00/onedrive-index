@@ -1,12 +1,12 @@
 import axios from 'axios'
 import type {NextApiRequest, NextApiResponse} from 'next'
 
-import {checkAuthRoute, encodePath, getAccessToken} from '.'
+import {checkAuthRoute, getAccessToken} from '.'
 import apiConfig from '../../../config/api.config'
 import {decryptData, encryptData} from '../../utils/oAuthHandler'
 import assert from 'assert'
 import siteConfig from '../../../config/site.config'
-import {Session} from "../../utils/odAuthTokenStore";
+import {getCache, Session, setCache} from "../../utils/odAuthTokenStore";
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the
@@ -29,6 +29,51 @@ function mapAbsolutePath(path: string): string {
         : ''
 }
 
+/**
+ * Get item details (specifically, its path) by its unique ID in OneDrive
+ * @param itemId Unique ID of the driveItem
+ * @returns The driveItem object
+ */
+async function getFileDataById(itemId: string) {
+    const accessToken = await getAccessToken()
+    const itemApi = `${apiConfig.driveApi}/items/${itemId}`
+    const {data} = await axios.get(itemApi, {
+        headers: {Authorization: `Bearer ${accessToken}`},
+        params: {
+            select: 'id,name,parentReference,file,folder',
+        },
+    })
+    delete data['@odata.context']
+    delete data['@odata.etag']
+    delete data?.parentReference?.driveId
+    delete data?.parentReference?.driveType
+    delete data?.parentReference?.siteId
+    data.id = encryptData(data.id);
+    if (data?.parentReference?.id) {
+        data.parentReference.id = encryptData(data.parentReference.id);
+    }
+    return data;
+}
+
+/**
+ * Get cached item details (specifically, its path) by its unique ID in OneDrive
+ * @param itemId
+ * @returns The driveItem object
+ */
+async function getCachedFileDataById(itemId: string) {
+    let {data, exists} = await getCache({key: `ITEM:${itemId}`})
+    if (exists && data) {
+        try {
+            return JSON.parse(data);
+        } catch (e) {
+        }
+    }
+    data = await getFileDataById(itemId);
+    setCache({key: `ITEM:${itemId}`, value: JSON.stringify(data), ex: 300}).then(() => {
+    });
+    return data
+}
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Get access token from storage
@@ -48,7 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('X-Need-NoCache', 'yes')
 
     if (typeof id === 'string') {
-        let queryId;
+        let queryId: string;
         try {
             queryId = decryptData(id);
             // console.log(queryId);
@@ -57,24 +102,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(400).json({error: 'Invalid driveItem ID.'})
             return;
         }
-        const itemApi = `${apiConfig.driveApi}/items/${queryId}`
 
         try {
-            const {data} = await axios.get(itemApi, {
-                headers: {Authorization: `Bearer ${accessToken}`},
-                params: {
-                    select: 'id,name,parentReference,file,folder',
-                },
-            })
-            delete data['@odata.context']
-            delete data['@odata.etag']
-            delete data?.parentReference?.driveId
-            delete data?.parentReference?.driveType
-            delete data?.parentReference?.siteId
-            data.id = encryptData(data.id);
-            if (data?.parentReference?.id) {
-                data.parentReference.id = encryptData(data.parentReference.id);
-            }
+            const data = await getCachedFileDataById(queryId);
 
             const authPath = mapAbsolutePath(data?.parentReference?.path + '/placeholder');
             const check = await checkAuthRoute(decodeURIComponent(authPath), accessToken, '')
