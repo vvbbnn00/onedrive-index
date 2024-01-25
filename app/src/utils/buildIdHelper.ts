@@ -6,10 +6,12 @@ import path from 'path';
  * Get the current build ID
  */
 export default function getBuildId() {
+    const buildIdPath = path.join(process.cwd(), '.next', 'BUILD_ID');
     try {
-        return fs.readFileSync(path.join('.next', BUILD_ID_FILE), 'utf-8').trim();
+        return fs.readFileSync(buildIdPath, 'utf8').trim();
     } catch (err) {
-        return 'Development'
+        console.error('Unable to read BUILD_ID:', err);
+        return 'UNKNOWN_BUILD_ID';
     }
 }
 
