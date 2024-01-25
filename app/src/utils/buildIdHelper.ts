@@ -10,7 +10,7 @@ export default function getBuildId() {
     try {
         return fs.readFileSync(buildIdPath, 'utf8').trim();
     } catch (err) {
-        console.error('Unable to read BUILD_ID:', err);
+        // console.error('Unable to read BUILD_ID:', err);
         return 'UNKNOWN_BUILD_ID';
     }
 }

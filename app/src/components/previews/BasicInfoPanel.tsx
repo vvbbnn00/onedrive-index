@@ -17,7 +17,7 @@ const BasicInfoPanel: FC<{ file: OdFileObject, hashedToken?: string }> = ({file,
                         className="rounded-lg border border-gray-900/10 px-8 py-20 text-center dark:border-gray-500/30">
                         {file.protected ? (<FontAwesomeIcon icon={['fas', 'lock']}/>) : (
                             <FontAwesomeIcon icon={getFileIcon(file.name, {video: Boolean(file.video)})}/>)}
-                        <div className="mt-6 text-sm font-medium line-clamp-3 md:w-28">{file.name}</div>
+                        <div className="mt-6 text-sm font-medium line-clamp-3 md:w-28 break-all">{file.name}</div>
                     </div>
 
                     <div className="flex flex-col space-y-2 py-4 md:flex-1">
