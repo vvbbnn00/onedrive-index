@@ -2,9 +2,45 @@ import Redis from 'ioredis'
 import siteConfig from '../../config/site.config'
 import type {NextApiRequest, NextApiResponse} from "next";
 import crypto from "crypto";
+import {checkBuildStage} from "./buildIdHelper";
+
+// If in build stage, use a null Redis client
+class NullRedis {
+    constructor() {
+        console.log(' ✓ Build stage detected, using NullRedis.')
+    }
+
+    get() {
+        return Promise.resolve(null)
+    }
+
+    set() {
+        return Promise.resolve(null)
+    }
+
+    exists() {
+        return Promise.resolve(0)
+    }
+
+    del() {
+        return Promise.resolve(null)
+    }
+
+    expire() {
+        return Promise.resolve(null)
+    }
+}
+
+
 // Persistent key-value store is provided by Redis, hosted on Upstash
 // https://vercel.com/integrations/upstash
-const kv = new Redis(process.env.REDIS_URL || '')
+let kv: NullRedis | Redis;
+// Add a random number at the end of the build stage check to prevent Next.js from caching the result
+if (checkBuildStage()) {
+    kv = new NullRedis()
+} else {
+    kv = new Redis(process.env.REDIS_URL || '')
+}
 
 export async function getOdAuthTokens(): Promise<{ accessToken: unknown; refreshToken: unknown }> {
     const accessToken = await kv.get(`${siteConfig.kvPrefix}access_token`)

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "cross-env NEXT_PUBLIC_BUILD_STAGE=true next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier 'src/**/*.{js,ts,jsx,tsx}' --write",
@@ -52,6 +52,7 @@
     "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
+    "sharp": "^0.33.2",
     "swr": "^2.0.3",
     "use-clipboard-copy": "^0.2.0",
     "use-constant": "^1.1.1"
@@ -66,6 +67,7 @@
     "@types/react-pdf": "^6.2.0",
     "@types/react-syntax-highlighter": "^15.5.6",
     "autoprefixer": "^10.4.13",
+    "cross-env": "^7.0.3",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "eslint-config-prettier": "^8.6.0",

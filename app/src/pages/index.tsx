@@ -7,7 +7,8 @@ import FileListing from '../components/FileListing'
 import Footer from '../components/Footer'
 import Breadcrumb from '../components/Breadcrumb'
 import SwitchLayout from '../components/SwitchLayout'
-import getBuildId from '../utils/buildIdHelper'
+import getBuildId, {isFirstTimeRun} from '../utils/buildIdHelper'
+import {getFileList} from "./api";
 
 export default function Home({build_id, renderedData}) {
     return (
@@ -38,8 +39,9 @@ export async function getStaticProps({locale}) {
     return {
         props: {
             build_id: getBuildId(),
-            renderedData: false,
+            renderedData: await getFileList({path: '/'}),
             ...(await serverSideTranslations(locale, ['common'])),
-        }
+        },
+        revalidate: isFirstTimeRun() ? 1 : siteConfig.cacheMaxAge,
     }
 }

@@ -9,6 +9,7 @@ import {encryptData, getAuthPersonInfo} from '../../utils/oAuthHandler'
 import {encryptToken} from '../../utils/protectedRouteHandler'
 import {getCache, getOdAuthTokens, Session, setCache, storeOdAuthTokens} from '../../utils/odAuthTokenStore'
 import {now} from "../../utils/loggerHelper";
+import {checkBuildStage} from "../../utils/buildIdHelper";
 
 /**
  * Check if the application is installed by checking if the access token is valid
@@ -279,6 +280,12 @@ async function getFileTextFromCache(path: string) {
  * @returns File list
  */
 export async function getFileList(query: { path: any; next?: any; sort?: any }) {
+    // Add a random number at the end of the build stage check to prevent Next.js from caching the result
+    if (checkBuildStage()) {
+        console.log(' ✓ Build stage detected, getFileList will return false.')
+        return false // If in build stage, return false to disable SSR
+    }
+
     const {path = '/', next = '', sort = ''} = query
 
     // Invalid requests doesn't support SSR
@@ -296,7 +303,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
     const authTokenPathList = getAuthTokenPath(cleanPath)
     if (authTokenPathList.length > 0) {
-        console.info(`[${now()}][PRIVATE][Path:${cleanPath}] Protected route, return empty file list.`)
+        console.info(`[${now()}][PRIVATE][Path:${cleanPath}](getFileList) Protected route, return empty file list.`)
         return false
     }
 
@@ -319,7 +326,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
     // Querying current path identity (file or folder) and follow up query childrens in folder
     try {
-        console.info(`[${now()}][PUBLIC][Path:${cleanPath}] Access.`)
+        console.info(`[${now()}][PUBLIC][Path:${cleanPath}](getFileList) Access.`)
 
         const {data: identityData} = await axios.get(requestUrl, {
             headers: {Authorization: `Bearer ${accessToken}`},
@@ -386,7 +393,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
         return {file: identityData}
     } catch (error: any) {
-        console.warn(`[${now()}][PUBLIC][${cleanPath}] Failed to get files, code %d, data: %s`, error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
+        console.warn(`[${now()}][PUBLIC][${cleanPath}](getFileList) Failed to get files, code %d, data: %s`, error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
         return false
     }
 }
