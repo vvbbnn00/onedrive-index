@@ -8,7 +8,12 @@ import siteConfig from '../../../config/site.config'
 import {encryptData, getAuthPersonInfo} from '../../utils/oAuthHandler'
 import {encryptToken} from '../../utils/protectedRouteHandler'
 import {getCache, getOdAuthTokens, Session, setCache, storeOdAuthTokens} from '../../utils/odAuthTokenStore'
+import {now} from "../../utils/loggerHelper";
 
+/**
+ * Check if the application is installed by checking if the access token is valid
+ * @returns Whether the application is installed
+ */
 async function checkInstalled(): Promise<boolean> {
     const access_token = await getAccessToken();
     if (!access_token) return false;
@@ -192,7 +197,7 @@ export async function checkAuthRoute(
             if (error?.response?.status === 404) {
                 // console.warn('Password file not found.', authTokenPath)
             } else {
-                console.warn('axios.get .password', JSON.stringify(error.message))
+                console.warn('[axios.get] .password', JSON.stringify(error.message))
             }
         }
     }
@@ -212,7 +217,10 @@ export async function checkAuthRoute(
     }
 }
 
-
+/**
+ * Get file content from cache
+ * @param path Path to file
+ */
 async function getFileTextFromCache(path: string) {
     const {data: cache, exists: cache_exists} = await getCache({
         key: 'F_' + path
@@ -244,7 +252,7 @@ async function getFileTextFromCache(path: string) {
             return ''
         }
     } catch (error: any) {
-        console.warn('axios.get readme.md', JSON.stringify(error.message))
+        // console.warn('axios.get readme.md', JSON.stringify(error.message))
         if (error?.response?.status === 404) {
             setCache({
                 key: 'F_' + path,
@@ -256,6 +264,11 @@ async function getFileTextFromCache(path: string) {
 }
 
 
+/**
+ * Get file list from OneDrive API, used for server side rendering
+ * @param query Query parameters
+ * @returns File list
+ */
 export async function getFileList(query: { path: any; next?: any; sort?: any }) {
     const {path = '/', next = '', sort = ''} = query
 
@@ -267,9 +280,14 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
     // Besides normalizing and making absolute, trailing slashes are trimmed
     const cleanPath = decodeURIComponent(pathPosix.resolve('/', pathPosix.normalize(path)).replace(/\/$/, ''))
 
+    // Path shoudn't cotain :
+    if (cleanPath.includes(':')) {
+        return false
+    }
+
     const authTokenPathList = getAuthTokenPath(cleanPath)
     if (authTokenPathList.length > 0) {
-        console.log('Protected route, return empty file list.')
+        console.info(`[${now()}][PRIVATE][Path:${cleanPath}] Protected route, return empty file list.`)
         return false
     }
 
@@ -292,6 +310,8 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
     // Querying current path identity (file or folder) and follow up query childrens in folder
     try {
+        console.info(`[${now()}][PUBLIC][Path:${cleanPath}] Access.`)
+
         const {data: identityData} = await axios.get(requestUrl, {
             headers: {Authorization: `Bearer ${accessToken}`},
             params: {
@@ -300,20 +320,21 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
         })
 
         if ('folder' in identityData) {
-            readme = await getFileTextFromCache(encodePath(cleanPath + '/readme.md'));
-            head = await getFileTextFromCache(encodePath(cleanPath + '/head.md'));
-
-            const {data: folderData} = await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
-                headers: {Authorization: `Bearer ${accessToken}`},
-                params: {
-                    ...{
-                        select: 'name,id,size,lastModifiedDateTime,folder,file,video,image',
-                        $top: siteConfig.maxItems,
+            let folderData: any;
+            await Promise.all([
+                readme = await getFileTextFromCache(encodePath(cleanPath + '/readme.md')),
+                head = await getFileTextFromCache(encodePath(cleanPath + '/head.md')),
+                folderData = (await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
+                    headers: {Authorization: `Bearer ${accessToken}`},
+                    params: {
+                        ...{
+                            select: 'name,id,size,lastModifiedDateTime,folder,file,video,image',
+                            $top: siteConfig.maxItems,
+                        },
+                        ...(next ? {$skipToken: next} : {}),
+                        ...(sort ? {$orderby: sort} : {}),
                     },
-                    ...(next ? {$skipToken: next} : {}),
-                    ...(sort ? {$orderby: sort} : {}),
-                },
-            })
+                })).data]);
 
             delete folderData['@odata.context']
             folderData.value = folderData?.value?.map(item => {
@@ -356,7 +377,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
         return {file: identityData}
     } catch (error: any) {
-        console.warn('Failed to get files, code %d, data: %s', error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
+        console.warn(`[${now()}][PUBLIC][${cleanPath}] Failed to get files, code %d, data: %s`, error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
         return false
     }
 }
@@ -420,6 +441,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Besides normalizing and making absolute, trailing slashes are trimmed
     const cleanPath = pathPosix.resolve('/', pathPosix.normalize(path)).replace(/\/$/, '')
 
+    // Path shoudn't cotain :
+    if (cleanPath.includes(':')) {
+        res.status(400).json({error: 'Path invalid.'})
+        return
+    }
+
     const accessToken = await getAccessToken()
 
     // Return error 403 if access_token is empty
@@ -461,11 +488,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
     }
 
-    // Path shoudn't cotain :
-    if (cleanPath.includes(':')) {
-        res.status(400).json({error: 'Path invalid.'})
-        return
-    }
+    console.info(`[${now()}][${needAuth ? 'PRIVATE' : 'PUBLIC'}][Path:${cleanPath}] Access.`)
 
     const requestPath = encodePath(cleanPath)
     // Handle response from OneDrive API
