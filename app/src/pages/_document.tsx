@@ -8,7 +8,7 @@ class MyDocument extends Document {
         <Head>
           <meta httpEquiv="Content-Security-Policy" content="default-src * 'unsafe-inline' blob:; img-src * blob:; font-src * blob: res:; script-src 'self' 'unsafe-eval' va.vercel-scripts.com static.cloudflareinsights.com" />
           <meta name="description" content="Naruse Galgame Space. Sharing personal galgame resources." />
-          <link rel="apple-touch-icon" sizes="57x57" href="public/apple-icon-57x57.png" />
+          <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png" />
           <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png" />
           <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png" />

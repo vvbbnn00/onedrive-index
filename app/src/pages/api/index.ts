@@ -267,18 +267,16 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
     // Besides normalizing and making absolute, trailing slashes are trimmed
     const cleanPath = decodeURIComponent(pathPosix.resolve('/', pathPosix.normalize(path)).replace(/\/$/, ''))
 
+    const authTokenPathList = getAuthTokenPath(cleanPath)
+    if (authTokenPathList.length > 0) {
+        console.log('Protected route, return empty file list.')
+        return false
+    }
+
     const accessToken = await getAccessToken()
 
     // Return error 403 if access_token is empty
     if (!accessToken) {
-        return false
-    }
-
-    // Handle protected routes authentication
-    // console.log('checkAuthRoute', cleanPath)
-    const {code} = await checkAuthRoute(cleanPath, accessToken, '')
-    // Status code other than 200 means user has not authenticated yet
-    if (code !== 200) {
         return false
     }
 
