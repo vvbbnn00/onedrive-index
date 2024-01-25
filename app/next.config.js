@@ -1,12 +1,13 @@
-const {i18n} = require('./next-i18next.config')
-const fs = require('fs');
+const { i18n } = require('./next-i18next.config')
+const fs = require('fs')
 
 module.exports = {
-    i18n,
-    reactStrictMode: true,
-    // Required by Next i18n with API routes, otherwise API routes 404 when fetching without trailing slash
-    trailingSlash: true,
-    generateBuildId: () => {
-        return process.env.GIT_COMMIT || 'development';
-    }
+  i18n,
+  reactStrictMode: true,
+  // Required by Next i18n with API routes, otherwise API routes 404 when fetching without trailing slash
+  trailingSlash: true,
+  generateBuildId: () => {
+    return process.env.GIT_COMMIT || 'development'
+  },
+  output: 'standalone'
 }
