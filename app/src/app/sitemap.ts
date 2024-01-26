@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { headers } from 'next/headers'
 import { getCache } from '../utils/odAuthTokenStore'
+import generateSitemap from '../cron/generate_sitemap'
 
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -14,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let siteMapList: any[]
   if (!exists) {
     siteMapList = []
+    generateSitemap().then(() => {})
   } else {
     try {
       siteMapList = JSON.parse(siteMapData as string)?.data

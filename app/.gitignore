@@ -73,3 +73,5 @@ Temporary Items
 *.vsix
 HEAD
 tests/*
+
+/src/pages/api/test.ts
