@@ -9,5 +9,8 @@ module.exports = {
   generateBuildId: () => {
     return process.env.GIT_COMMIT || 'development'
   },
-  output: 'standalone'
+  output: 'standalone',
+  experimental: {
+    instrumentationHook: true
+  }
 }
