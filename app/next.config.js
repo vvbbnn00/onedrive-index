@@ -1,5 +1,4 @@
 const { i18n } = require('./next-i18next.config')
-const fs = require('fs')
 
 module.exports = {
   i18n,

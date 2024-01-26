@@ -1,5 +1,5 @@
 import type { OdFileObject } from '../../types'
-import { FC, useEffect, useRef, useState } from 'react'
+import { FC } from 'react'
 import { useRouter } from 'next/router'
 import DownloadButtonGroup from '../DownloadBtnGtoup'
 import { DownloadBtnContainer } from './Containers'
@@ -21,7 +21,7 @@ const OfficePreview: FC<{ file: OdFileObject, hashedToken?: string }> = ({ file,
       <div
         className="overflow-scroll border-t border-gray-900/10 bg-whitep-2 shadow-sm dark:border-gray-500/30 dark:bg-gray-900 rounded backdrop-blur-md !bg-opacity-50"
         style={{ height: '90vh' }}>
-        <iframe src={url} frameBorder="0" width="100%" height="100%"></iframe>
+        <iframe src={url} width="100%" height="100%"></iframe>
       </div>
       <DownloadBtnContainer>
         <DownloadButtonGroup hashedToken={hashedToken} />

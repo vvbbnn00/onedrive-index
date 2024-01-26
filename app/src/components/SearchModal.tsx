@@ -119,8 +119,6 @@ function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number]
     fetcher
   )
 
-  const { t } = useTranslation()
-
   if (error || !data) {
     return
   }

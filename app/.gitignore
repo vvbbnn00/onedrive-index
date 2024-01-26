@@ -37,7 +37,6 @@ yarn-error.log*
 dump.rdb
 
 # General
-.DS_Store
 .AppleDouble
 .LSOverride
 
