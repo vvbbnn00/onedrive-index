@@ -31,7 +31,7 @@ module.exports = {
     // The name of your website. Present alongside your icon.
     title: process.env.TITLE || "Naruse Galgame Space",
 
-    // The folder that you are to share publicly with onedrive-vercel-index. Use '/' if you want to share your root folder.
+    // The folder that you are to share publicly with onedrive-docker-index. Use '/' if you want to share your root folder.
     baseDirectory: process.env.BASE_DIRECTORY || '/',
 
     // [OPTIONAL] This represents the maximum number of items that one directory lists, pagination supported.
@@ -40,9 +40,9 @@ module.exports = {
 
     // [OPTIONAL] We use Google Fonts natively for font customisations.
     // You can check and generate the required links and names at https://fonts.google.com.
-    // googleFontSans - the sans serif font used in onedrive-vercel-index.
+    // googleFontSans - the sans serif font used in onedrive-docker-index.
     googleFontSans: 'Inter',
-    // googleFontMono - the monospace font used in onedrive-vercel-index.
+    // googleFontMono - the monospace font used in onedrive-docker-index.
     googleFontMono: 'Fira Mono',
     // googleFontLinks -  an array of links for referencing the google font assets.
     googleFontLinks: [

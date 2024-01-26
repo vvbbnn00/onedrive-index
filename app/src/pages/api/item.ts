@@ -10,7 +10,7 @@ import {getCache, Session, setCache} from "../../utils/odAuthTokenStore";
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the
- * absolute path represented in onedrive-vercel-index
+ * absolute path represented in onedrive-docker-index
  *
  * @param path Path returned from the parentReference field of the driveItem
  * @returns The absolute path of the driveItem in the search result

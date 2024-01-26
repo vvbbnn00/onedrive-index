@@ -171,7 +171,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
                   <button
                     className="rounded-lg bg-gradient-to-br from-red-500 to-orange-400 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-red-200 disabled:cursor-not-allowed disabled:grayscale dark:focus:ring-red-800"
                     onClick={() => {
-                      router.push('/onedrive-vercel-index-oauth/step-1')
+                      router.push('/setup/step-1')
                     }}
                   >
                     <FontAwesomeIcon icon="arrow-left" /> <span>{t('Restart')}</span>
@@ -217,7 +217,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
                     }
                   ) +
                     t(
-                      "Don't worry, after storing them, onedrive-vercel-index will take care of token refreshes and updates after your site goes live."
+                      "Don't worry, after storing them, onedrive-docker-index will take care of token refreshes and updates after your site goes live."
                     )}
                 </p>
 

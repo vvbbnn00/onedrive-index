@@ -14,9 +14,9 @@ import Folders from '../[...path]'
 
 /**
  * Protect the secret information.
- * 
+ *
  * @param text information
- * @returns 
+ * @returns
  */
 function addStarsAndTrim(text: string): string {
   if (text.length <= 10) {
@@ -99,7 +99,7 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
                 <code className="font-mono text-sm underline decoration-pink-600 decoration-wavy">access_token</code> or{' '}
                 <code className="font-mono text-sm underline decoration-green-600 decoration-wavy">refresh_token</code>{' '}
                 is present on this deployed instance. Check the following configurations before proceeding with
-                authorising onedrive-vercel-index with your own Microsoft account.
+                authorising onedrive-docker-index with your own Microsoft account.
               </Trans>
             </p>
 
@@ -170,7 +170,7 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
               <button
                 className="rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-cyan-300 dark:focus:ring-cyan-800"
                 onClick={() => {
-                  router.push('/onedrive-vercel-index-oauth/step-2')
+                  router.push('/setup/step-2')
                 }}
               >
                 <span>{t('Proceed to OAuth')}</span> <FontAwesomeIcon icon="arrow-right" />

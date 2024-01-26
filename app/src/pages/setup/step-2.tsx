@@ -148,7 +148,7 @@ export default function OAuthStep2({ installed, redirectUri, oAuthUrl, build_id 
                 disabled={authCode === ''}
                 onClick={() => {
                   setButtonLoading(true)
-                  router.push({ pathname: '/onedrive-vercel-index-oauth/step-3', query: { authCode } })
+                  router.push({ pathname: '/setup/step-3', query: { authCode } })
                 }}
               >
                 {buttonLoading ? (
