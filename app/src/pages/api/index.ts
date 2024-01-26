@@ -374,9 +374,9 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
             // Return paging token if specified
             if (nextPage) {
-                return {folder: folderData, next: nextPage, readme, head}
+                return {folder: folderData, next: nextPage, readme, head, title: identityData.name}
             } else {
-                return {folder: folderData, readme, head}
+                return {folder: folderData, readme, head, title: identityData.name}
             }
         }
 
@@ -391,7 +391,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
             identityData.protected = true
         }
 
-        return {file: identityData}
+        return {file: identityData, title: identityData.name}
     } catch (error: any) {
         console.warn(`[${now()}][PUBLIC][${cleanPath}](getFileList) Failed to get files, code %d, data: %s`, error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
         return false
