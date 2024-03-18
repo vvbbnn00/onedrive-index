@@ -62,6 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         delete item?.parentReference?.driveId
         delete item?.parentReference?.driveType
         delete item?.parentReference?.siteId
+        delete item?.parentReference?.path
         item.id = encryptData(item.id);
         if (item.parentReference.id) {
           item.parentReference.id = encryptData(item?.parentReference?.id)
