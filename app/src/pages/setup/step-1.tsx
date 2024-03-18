@@ -50,7 +50,8 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
   const router = useRouter()
   if (installed) {
     router.query.path = router.pathname.substring(1).split('/')
-    return Folders(build_id)
+    //@ts-ignore
+    return Folders({ build_id })
   }
 
   return (

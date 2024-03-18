@@ -97,7 +97,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             queryId = decryptData(id);
             // console.log(queryId);
-            assert(queryId.match(/^[A-Za-z0-9]+$/))
+            assert(queryId.match(/^[A-Za-z0-9!]+$/))
         } catch (err) {
             res.status(400).json({error: 'Invalid driveItem ID.'})
             return;

@@ -51,7 +51,8 @@ export default function OAuthStep2({ installed, redirectUri, oAuthUrl, build_id 
 
   if (installed) {
     router.query.path = router.pathname.substring(1).split('/')
-    return Folders(build_id)
+    //@ts-ignore
+    return Folders({ build_id })
   }
 
   return (

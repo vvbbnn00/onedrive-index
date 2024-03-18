@@ -14,7 +14,7 @@ const icons: { [key: string]: [IconPrefix, IconName] } = {
   file: ['far', 'file'],
   markdown: ['fab', 'markdown'],
   book: ['fas', 'book'],
-  link: ['fas', 'link'],
+  link: ['fas', 'link']
 }
 
 const extensions = {
@@ -92,7 +92,7 @@ const extensions = {
   mobi: icons.book,
   azw3: icons.book,
 
-  url: icons.link,
+  url: icons.link
 }
 
 /**
@@ -109,9 +109,13 @@ export function hasKey(obj: Record<string, any>, key: string): boolean {
   return key in obj
 }
 
-export function getRawExtension(fileName: string): string {
+export function getRawExtension(fileName: string | undefined): string {
+  if (typeof fileName !== 'string') {
+    return ''
+  }
   return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2)
 }
+
 export function getExtension(fileName: string): string {
   return getRawExtension(fileName).toLowerCase()
 }
