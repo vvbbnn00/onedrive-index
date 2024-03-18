@@ -87,7 +87,6 @@
 
 .markdown-body strong {
   font-weight: inherit;
-  font-weight: bolder;
 }
 
 .markdown-body h1 {
@@ -778,7 +777,6 @@
 .markdown-body img {
   max-width: 100%;
   box-sizing: initial;
-  background-color: #fff;
 }
 
 .markdown-body img[align='right'] {
@@ -988,6 +986,11 @@
   vertical-align: middle;
 }
 
+.markdown-body img, svg, video, canvas, audio, iframe, embed, object {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 @media (prefers-color-scheme: dark) {
   .markdown-body {
     /* color: #c9d1d9; */
@@ -1138,9 +1141,6 @@
   }
   .markdown-body table tr:nth-child(2n) {
     background-color: #161b22;
-  }
-  .markdown-body img {
-    background-color: #0d1117;
   }
   .markdown-body code {
     background-color: rgba(240, 246, 252, 0.15);

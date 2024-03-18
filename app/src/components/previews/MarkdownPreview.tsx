@@ -116,7 +116,7 @@ const MarkdownPreview: FC<{
   return (
     <div>
       {standalone && <BasicInfoPanel file={file}></BasicInfoPanel>}
-      <div className="border-t border-gray-900/10 bg-white bg-opacity-80 p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded !bg-opacity-50">
+      <div className="border-t border-gray-900/10 bg-white p-2 shadow-sm backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 rounded !bg-opacity-50">
         <div className="markdown-body">
           {/* Using rehypeRaw to render HTML inside Markdown is potentially dangerous, use under safe environments. (#18) */}
           <ReactMarkdown
