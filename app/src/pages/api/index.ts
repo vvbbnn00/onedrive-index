@@ -407,7 +407,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // verify identity of the authenticated user with the Microsoft Graph API
     const { data, status } = await getAuthPersonInfo(accessToken)
     if (status !== 200) {
-      res.status(500).send('Error validating identify.')
+      res.status(500).send('Error validating identity.')
       return
     }
     if (data.userPrincipalName !== siteConfig.userPrincipalName) {
