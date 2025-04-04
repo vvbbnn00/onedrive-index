@@ -32,6 +32,7 @@
     "iconv-lite": "^0.6.3",
     "ioredis": "^5.3.0",
     "jose": "^6.0.10",
+    "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",
     "mpegts.js": "^1.7.2",
     "next": "^15.2.4",
@@ -41,7 +42,6 @@
     "react": "^18.2.0",
     "react-async-hook": "^4.0.0",
     "react-audio-player": "^0.17.0",
-    "react-cookie": "^8.0.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.0",
@@ -62,6 +62,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/crypto-js": "^4.1.1",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "18.16.18",
     "@types/react": "18.2.14",
     "@types/react-copy-to-clipboard": "^5.0.4",

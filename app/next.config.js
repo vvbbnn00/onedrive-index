@@ -9,7 +9,5 @@ module.exports = {
     return process.env.GIT_COMMIT || 'development'
   },
   output: 'standalone',
-  experimental: {
-    instrumentationHook: true
-  }
+  experimental: {}
 }
