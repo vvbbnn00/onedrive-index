@@ -36,8 +36,18 @@ NODE_ENV=production  # Deployment environment, default to production mode, no ne
 NEXT_PUBLIC_USER_PRINCIPLE_NAME=Your Onedrive Username  # Your Onedrive account used for binding
 KV_PREFIX=GALBOX  # Prefix for Redis storage, you can modify it according to your situation
 REDIS_URL=redis://redis:6379  # Normally no need to modify, if you need to use an external Redis service, you need to fill in
-MS_CLIENT_ID=Your Client ID  # Your ClientID
-MS_CLIENT_SECRET=Your Client Secret  # Your ClientSecret
+
+MS_AUTH_TYPE=certificate # Authentication method, can be clientSecret or certificate
+
+; Since the clientSecret is valid for a maximum of 2 years, certificate authentication is recommended
+MS_CLIENT_ID=Your Client ID  # Your ClientID, required
+MS_CLIENT_SECRET=Your Client Secret  # Your ClientSecret, required when using clientSecret authentication method
+
+; For certificate authentication, please refer to: https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
+MS_TENANT_ID=Your Tenant ID  # Your Directory (tenant) ID, required when using certificate authentication
+MS_CLIENT_CERTIFICATE_THUMBPRINT=Base 64 Thumbprint  # The Base 64 Thumbprint of the certificate, required when using certificate authentication
+MS_CLIENT_PRIVATE_KEY_BASE64=Base 64 Private Key  # The PEM format private key certificate content after second Base64 encoding, required when using certificate authentication
+
 SECRET_KEY=Your Secret Key  # Secret Key used for AES encryption, it must be kept absolutely confidential
 PROTECTED_ROUTES=["/protectedRoutes/"] # Protected paths, you can modify them according to your own situation, they need to be in JSON format
 ```

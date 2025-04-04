@@ -103,7 +103,7 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
         setButtonError(true)
         setButtonContent(
           <div>
-            <span>{t('Failed')}: {t(data.response.data)}</span> <FontAwesomeIcon icon="exclamation-circle" />
+            <span>{t('Failed')}: {t(data.response.data || data.response.data?.error)}</span> <FontAwesomeIcon icon="exclamation-circle" />
           </div>
         )
       })
