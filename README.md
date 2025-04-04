@@ -35,8 +35,18 @@ NODE_ENV=production  # 部署环境，默认为production模式，无需更改
 NEXT_PUBLIC_USER_PRINCIPLE_NAME=Your Onedrive Username  # 您的Onedrive账号，作绑定用
 KV_PREFIX=GALBOX  # Redis存储的前缀，可根据自己情况修改
 REDIS_URL=redis://redis:6379  # 正常情况下无需修改，若您需要使用外部的Redis服务，则需要填写
-MS_CLIENT_ID=Your Client ID  # 您的ClientID
-MS_CLIENT_SECRET=Your Client Secret  # 您的ClientSecret
+
+MS_AUTH_TYPE=certificate # 认证方式，可以为clientSecret，或者certificate
+
+; 由于clientSecret的有效期最长为2年，推荐使用certificate认证方式
+MS_CLIENT_ID=Your Client ID  # 您的 Application (client) ID，必填
+MS_CLIENT_SECRET=Your Client Secret  # 您的ClientSecret，当使用clientSecret认证方式时，必填
+
+; 关于证书认证，可以参考：https://learn.microsoft.com/zh-cn/entra/identity-platform/certificate-credentials
+MS_TENANT_ID=Your Tenant ID  # 您的Directory (tenant) ID，当使用certificate认证方式时，必填
+MS_CLIENT_CERTIFICATE_THUMBPRINT=Base 64 Thumbprint  # 证书的Base 64 Thumbprint，当使用certificate认证方式时，必填
+MS_CLIENT_PRIVATE_KEY_BASE64=Base 64 Private Key  # PEM格式的私钥证书二次Base64编码后的内容，当使用certificate认证方式时，必填1
+
 SECRET_KEY=Your Secret Key  # AES加密用的Secret Key，它是绝对保密的
 PROTECTED_ROUTES=["/protectedRoutes/"]  # 受保护的路径，您可以根据自己的情况修改，需要是JSON格式
 ```

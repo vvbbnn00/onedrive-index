@@ -7,11 +7,22 @@
  * - If you are using a E5 Subscription OneDrive for Business account, the direct links of your files are not the same here.
  *   In which case you would need to change directLinkRegex.
  */
-module.exports = {
+const configuration = {
+  // authType is the type of authentication we are using, both clientSecret and certificate is available.
+  authType: process.env.MS_AUTH_TYPE || 'clientSecret',
+
   // The clientId and clientSecret are used to authenticate the user with Microsoft Graph API using OAuth. You would
   // not need to change anything here if you can authenticate with your personal Microsoft account with OneDrive International.
+  tenantId: process.env.MS_TENANT_ID || 'common',
   clientId: process.env.MS_CLIENT_ID || '',
   clientSecret: process.env.MS_CLIENT_SECRET || '',
+  // The clientJwtAlg is used to sign the JWT token that is sent to Microsoft Graph API.
+  clientJwtAlg: process.env.MS_CLIENT_JWT_ALG || 'RS256',
+  // The clientCertificateThumbprint is used to authenticate the user with Microsoft Graph API using a certificate.
+  // Should be Base64 format.
+  clientCertificateThumbprint: process.env.MS_CLIENT_CERTIFICATE_THUMBPRINT || '',
+  // The clientPrivateKey is used to authenticate the user with Microsoft Graph API using a private key, must match the jwt alg.
+  clientPrivateKey: process.env.MS_CLIENT_PRIVATE_KEY_BASE64 || '',
 
   // The redirectUri is the URL that the user will be redirected to after they have authenticated with Microsoft Graph API.
   // Likewise, you would not need to change redirectUri if you are using your personal Microsoft account with OneDrive International.
@@ -30,5 +41,16 @@ module.exports = {
   // - s-maxage=0: cache is fresh for 60 seconds on the edge, after which it becomes stale
   // - stale-while-revalidate: allow serving stale content while revalidating on the edge
   // https://vercel.com/docs/concepts/edge-network/caching
-  cacheControlHeader: 'max-age=0, s-maxage=60, stale-while-revalidate',
+  cacheControlHeader: 'max-age=0, s-maxage=60, stale-while-revalidate'
 }
+
+// If privateKey is set, try to decode it from base64
+if (configuration.clientPrivateKey) {
+  try {
+    configuration.clientPrivateKey = atob(configuration.clientPrivateKey)
+  } catch (e) {
+    console.error('Failed to decode clientPrivateKey from base64', e)
+  }
+}
+
+module.exports = configuration

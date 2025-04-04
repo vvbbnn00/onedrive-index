@@ -7,3 +7,4 @@ app/LICENSE
 app/.env
 .env
 .env-*
+.idea

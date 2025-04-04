@@ -20,27 +20,27 @@ import Folders from '../[...path]'
  */
 function addStarsAndTrim(text: string): string {
   if (text.length <= 10) {
-    return '**********';
+    return '**********'
   }
 
-  const prefix = text.substring(0, 5);
-  const suffix = text.substring(text.length - 5);
-  const stars = '*'.repeat(text.length - 10);
+  const prefix = text.substring(0, 5)
+  const suffix = text.substring(text.length - 5)
+  const stars = '*'.repeat(text.length - 10)
 
-  return `${prefix}${stars}${suffix}`;
+  return `${prefix}${stars}${suffix}`
 }
 
 
 async function checkInstalled(): Promise<boolean> {
-  const access_token = await getAccessToken();
-  if (!access_token) return false;
+  const access_token = await getAccessToken()
+  if (!access_token) return false
   try {
-    const { status } = await getAuthPersonInfo(access_token);
-    if (status !== 200) return false;
+    const { status } = await getAuthPersonInfo(access_token)
+    if (status !== 200) return false
   } catch (error: any) {
-    return false;
+    return false
   }
-  return true;
+  return true
 }
 
 
@@ -97,8 +97,10 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
             <p className="py-1">
               <Trans>
                 Authorisation is required as no valid{' '}
-                <code className="font-mono text-sm underline decoration-pink-600 decoration-wavy">access_token</code> or{' '}
-                <code className="font-mono text-sm underline decoration-green-600 decoration-wavy">refresh_token</code>{' '}
+                <code
+                  className="font-mono text-sm underline decoration-pink-600 decoration-wavy">access_token</code> or{' '}
+                <code
+                  className="font-mono text-sm underline decoration-green-600 decoration-wavy">refresh_token</code>{' '}
                 is present on this deployed instance. Check the following configurations before proceeding with
                 authorising onedrive-docker-index with your own Microsoft account.
               </Trans>
@@ -107,54 +109,100 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
             <div className="my-4 overflow-hidden">
               <table className="min-w-full table-auto">
                 <tbody>
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    AUTH_TYPE
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.authType}</code>
+                  </td>
+                </tr>
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    CLIENT_ID
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.clientId}</code>
+                  </td>
+                </tr>
+                {apiConfig.authType === 'clientSecret' && (
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      CLIENT_ID
-                    </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.clientId}</code>
-                    </td>
-                  </tr>
-                  <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    <td
+                      className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
                       CLIENT_SECRET*
                     </td>
                     <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.clientSecret}</code>
+                      <code className="font-mono text-sm">{apiConfig.clientSecret || "-"}</code>
+                    </td>
+                  </tr>
+                )}
+                {apiConfig.authType === 'certificate' && (<>
+                  <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                    <td
+                      className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                      TENANT_ID*
+                    </td>
+                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                      <code className="font-mono text-sm">{apiConfig.tenantId || '-'}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      REDIRECT_URI
+                    <td
+                      className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                      CERTIFICATE_THUMBPRINT*
                     </td>
                     <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.redirectUri}</code>
+                      <code className="font-mono text-sm">{apiConfig.clientCertificateThumbprint || '-'}</code>
                     </td>
                   </tr>
                   <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      Auth API URL
+                    <td
+                      className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                      PRIVATE_KEY*
                     </td>
                     <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.authApi}</code>
+                      <code className="font-mono text-sm">{apiConfig.clientPrivateKey || '-'}</code>
                     </td>
                   </tr>
-                  <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      Drive API URL
-                    </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.driveApi}</code>
-                    </td>
-                  </tr>
-                  <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
-                    <td className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                      API Scope
-                    </td>
-                    <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
-                      <code className="font-mono text-sm">{apiConfig.scope}</code>
-                    </td>
-                  </tr>
+                </>)}
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    REDIRECT_URI
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.redirectUri}</code>
+                  </td>
+                </tr>
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    Auth API URL
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.authApi}</code>
+                  </td>
+                </tr>
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    Drive API URL
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.driveApi}</code>
+                  </td>
+                </tr>
+                <tr className="border-y bg-white dark:border-gray-700 dark:bg-gray-900">
+                  <td
+                    className="bg-gray-50 py-1 px-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+                    API Scope
+                  </td>
+                  <td className="whitespace-nowrap py-1 px-3 text-gray-500 dark:text-gray-400">
+                    <code className="font-mono text-sm">{apiConfig.scope}</code>
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -186,8 +234,9 @@ export default function OAuthStep1({ installed, apiConfig, build_id }) {
   )
 }
 
-import apiConfig from '../../../config/api.config';
+import apiConfig from '../../../config/api.config'
 import getBuildId from '../../utils/buildIdHelper'
+
 export async function getServerSideProps({ locale }) {
 
   return {
@@ -195,10 +244,18 @@ export async function getServerSideProps({ locale }) {
       ...(await serverSideTranslations(locale, ['common'])),
       installed: await checkInstalled(),
       apiConfig: {
-        ...apiConfig,
-        clientSecret: addStarsAndTrim(apiConfig.clientSecret)
+        authType: apiConfig.authType,
+        clientId: apiConfig.clientId,
+        redirectUri: apiConfig.redirectUri,
+        authApi: apiConfig.authApi,
+        driveApi: apiConfig.driveApi,
+        scope: apiConfig.scope,
+        tenantId: apiConfig.tenantId,
+        clientCertificateThumbprint: apiConfig.clientCertificateThumbprint,
+        clientSecret: addStarsAndTrim(apiConfig.clientSecret),
+        clientPrivateKey: apiConfig?.clientPrivateKey ? "******" : "-",
       },
       build_id: getBuildId()
-    },
+    }
   }
 }
