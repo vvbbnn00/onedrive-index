@@ -5,7 +5,7 @@ import generateSitemap from '../cron/generate_sitemap'
 
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = headers()
+  const headersList = await headers()
   const host = headersList.get('host') || 'localhost:3000'
   const protocol = headersList.get('x-forwarded-proto') || 'https'
   const baseUrl = `${protocol}://${host}`
