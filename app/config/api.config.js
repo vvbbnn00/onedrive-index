@@ -47,7 +47,7 @@ const configuration = {
 // If privateKey is set, try to decode it from base64
 if (configuration.clientPrivateKey) {
   try {
-    configuration.clientPrivateKey = atob(configuration.clientPrivateKey)
+    configuration.clientPrivateKey = Buffer.from(configuration.clientPrivateKey, 'base64').toString('utf8')
   } catch (e) {
     console.error('Failed to decode clientPrivateKey from base64', e)
   }
