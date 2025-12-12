@@ -35,7 +35,7 @@
     "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",
     "mpegts.js": "^1.7.2",
-    "next": "^15.5.7",
+    "next": "^15.5.9",
     "next-i18next": "^13.0.3",
     "nextjs-progressbar": "^0.0.16",
     "plyr-react": "^5.1.2",
