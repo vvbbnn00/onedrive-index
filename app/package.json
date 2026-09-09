@@ -35,7 +35,7 @@
     "js-cookie": "^3.0.7",
     "jszip": "^3.10.1",
     "mpegts.js": "^1.7.2",
-    "next": "^15.5.18",
+    "next": "^15.5.25",
     "next-i18next": "^13.0.3",
     "nextjs-progressbar": "^0.0.16",
     "plyr-react": "^5.1.2",
@@ -54,7 +54,7 @@
     "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
-    "sharp": "0.32.6",
+    "sharp": "0.35.4",
     "swr": "^2.0.3",
     "use-clipboard-copy": "^0.2.0",
     "use-constant": "^1.1.1"
