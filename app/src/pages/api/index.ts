@@ -384,7 +384,10 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
     return { file: identityData, title: identityData.name }
   } catch (error: any) {
-    console.warn(`[${now()}][PUBLIC][${cleanPath}](getFileList) Failed to get files, code %d, data: %s`, error?.response?.code ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
+    if (error?.response?.status === 404) {
+      return { notFound: true }
+    }
+    console.warn(`[${now()}][PUBLIC][${cleanPath}](getFileList) Failed to get files, code %d, data: %s`, error?.response?.status ?? 500, JSON.stringify(error?.response?.data ?? 'Internal server error.'))
     return false
   }
 }

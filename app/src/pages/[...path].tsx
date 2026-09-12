@@ -60,22 +60,19 @@ const queryToPath = (query?: ParsedUrlQuery) => {
   return '/'
 }
 
-export async function getStaticPaths() {
-  return {
-    paths: [], // Empty array means no path will be generated at build time
-    fallback: 'blocking'
-  }
-}
-
-export async function getStaticProps({ locale, params }) {
+// Arbitrary OneDrive paths must not create an unbounded on-disk ISR cache.
+export async function getServerSideProps({ locale, params }) {
   const path = queryToPath(params)
+  const renderedData = await getFileList({ path })
+  if (renderedData && 'notFound' in renderedData) {
+    return { notFound: true }
+  }
 
   return {
     props: {
       build_id: getBuildId(),
-      renderedData: await getFileList({ path }),
+      renderedData,
       ...(await serverSideTranslations(locale, ['common']))
-    },
-    revalidate: siteConfig.cacheMaxAge
+    }
   }
 }
