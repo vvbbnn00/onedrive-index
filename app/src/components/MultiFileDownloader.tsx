@@ -1,6 +1,6 @@
 import { NextRouter } from 'next/router'
 import toast from 'react-hot-toast'
-import JSZip from 'jszip'
+import { createDownloadBudget, downloadFile, MAX_ZIP_FILES } from '../utils/download'
 import { useTranslation } from 'next-i18next'
 
 import { fetcher } from '../utils/fetchWithSWR'
@@ -47,7 +47,7 @@ export function downloadBlob({ blob, name }: { blob: Blob; name: string }) {
   el.href = bUrl
   el.download = name
   el.click()
-  window.URL.revokeObjectURL(bUrl)
+  setTimeout(() => window.URL.revokeObjectURL(bUrl), 1000)
   el.remove()
 }
 
@@ -68,18 +68,28 @@ export async function downloadMultipleFiles({
   files: { name: string; url: string }[]
   folder?: string
 }): Promise<void> {
+  const JSZip = (await import('jszip')).default
   const zip = new JSZip()
   const dir = folder ? zip.folder(folder)! : zip
 
-  // Add selected file blobs to zip
-  files.forEach(({ name, url }) => {
-    dir.file(
-      name,
-      fetch(url).then(r => {
-        return r.blob()
-      })
-    )
+  if (files.length > MAX_ZIP_FILES) throw new Error('Select at most 500 files per ZIP download.')
+  const budget = createDownloadBudget()
+  const controller = new AbortController()
+  let cursor = 0
+  const workers = Array.from({ length: Math.min(4, files.length) }, async () => {
+    while (cursor < files.length && !controller.signal.aborted) {
+      const { name, url } = files[cursor++]
+      try {
+        dir.file(name, await downloadFile(url, budget, controller.signal))
+      } catch (error) {
+        controller.abort()
+        throw error
+      }
+    }
   })
+  const results = await Promise.allSettled(workers)
+  const failure = results.find(result => result.status === 'rejected') as PromiseRejectedResult | undefined
+  if (failure) throw failure.reason
 
   // Create zip file and download it
   const b = await zip.generateAsync({ type: 'blob' }, metadata => {
@@ -119,33 +129,21 @@ export async function downloadTreelikeMultipleFiles({
   basePath: string
   folder?: string
 }): Promise<void> {
+  const JSZip = (await import('jszip')).default
   const zip = new JSZip()
   const root = folder ? zip.folder(folder)! : zip
-  const map = [{ path: basePath, dir: root }]
+  const map = new Map([[basePath.replace(/\/$/, ''), root]])
+  const budget = createDownloadBudget()
 
   // Add selected file blobs to zip according to its path
   for await (const { name, url, path, isFolder } of files) {
-    // Search parent dir in map
-    const i = map
-      .slice()
-      .reverse()
-      .findIndex(
-        ({ path: parent }) =>
-          path.substring(0, parent.length) === parent && path.substring(parent.length + 1).indexOf('/') === -1
-      )
-    if (i === -1) {
-      throw new Error('File array does not satisfy requirement')
-    }
-
-    // Add file or folder to zip
-    const dir = map[map.length - 1 - i].dir
+    const parent = path.substring(0, path.lastIndexOf('/')).replace(/\/$/, '')
+    const dir = map.get(parent)
+    if (!dir) throw new Error('File array does not satisfy requirement')
     if (isFolder) {
-      map.push({ path, dir: dir.folder(name)! })
+      map.set(path.replace(/\/$/, ''), dir.folder(name)!)
     } else {
-      dir.file(
-        name,
-        fetch(url!).then(r => r.blob())
-      )
+      dir.file(name, await downloadFile(url!, budget))
     }
   }
 
@@ -166,14 +164,9 @@ interface TraverseItem {
 }
 
 /**
- * One-shot concurrent top-down file traversing for the folder.
- * Due to react hook limit, we cannot reuse SWR utils for recursive actions.
- * We will directly fetch API and arrange responses instead.
- * In folder tree, we visit folders top-down as concurrently as possible.
- * Every time we visit a folder, we fetch and return meta of all its children.
- * If folders have pagination, partically retrieved items are not returned immediately,
- * but after all children of the folder have been successfully retrieved.
- * If an error occurred in paginated fetching, all children will be dropped.
+ * Bounded top-down traversal. Pages are yielded as they arrive, with parents
+ * before children. Client errors are reported for the affected directory;
+ * server and network errors abort the download.
  * @param path Folder to be traversed. The path should be cleaned in advance.
  * @param hashedToken Optional hashed token to be used for protected routes
  * @returns Array of items representing folders and files of traversed folder top-down and excluding root folder.
@@ -181,77 +174,39 @@ interface TraverseItem {
  * Error key in the item will contain the error when there is a handleable error.
  */
 export async function* traverseFolder(path: string, hashedToken?: string): AsyncGenerator<TraverseItem, void, undefined> {
-  // Generate the task passed to Promise.race to request a folder
-  const genTask = async (i: number, path: string, next?: string) => {
-    return {
-      i,
-      path,
-      data: await fetcher([
-        next ? `/api/?path=${path}&next=${next}` : `/api?path=${path}`,
-        hashedToken ?? undefined,
-      ]).catch(error => ({ i, path, error })),
-    }
-  }
-
-  // Pool containing Promises of folder requests
-  let pool = [genTask(0, path)]
-
-  // Map as item buffer for folders with pagination
-  const buf: { [k: string]: TraverseItem[] } = {}
-
-  // filter(() => true) removes gaps in the array
-  while (pool.filter(() => true).length > 0) {
-    let info: { i: number; path: string; data: any }
-    try {
-      info = await Promise.race(pool.filter(() => true))
-    } catch (error: any) {
-      const { i, path, error: innerError } = error
-      // 4xx errors are identified as handleable errors
-      if (Math.floor(innerError.status / 100) === 4) {
-        delete pool[i]
-        yield {
-          path,
-          meta: {},
-          isFolder: true,
-          error: { status: innerError.status, message: innerError.message.error },
+  const queue = [path]
+  const visited = new Set<string>()
+  let count = 0
+  while (queue.length) {
+    const current = queue.shift()!
+    if (visited.has(current)) continue
+    visited.add(current)
+    if (visited.size > 500) throw new Error('Select a smaller folder (at most 500 directories per download).')
+    let next: string | undefined
+    const pages = new Set<string>()
+    do {
+      if (pages.has(next ?? '')) throw new Error('Repeated pagination token.')
+      pages.add(next ?? '')
+      let data: any
+      try {
+        data = await fetcher([`/api/?path=${current}${next ? '&next=' + encodeURIComponent(next) : ''}`, hashedToken])
+      } catch (error: any) {
+        if (error.status >= 400 && error.status < 500) {
+          yield { path: current, meta: {}, isFolder: true, error: { status: error.status, message: error.message?.error ?? 'Unable to read folder.' } }
+          break
         }
-        continue
-      } else {
         throw error
       }
-    }
-
-    const { i, path, data } = info
-    if (!data || !data.folder) {
-      throw new Error('Path is not folder')
-    }
-    delete pool[i]
-
-    const items = data.folder.value.map((c: any) => {
-      const p = `${path === '/' ? '' : path}/${encodeURIComponent(c.name)}`
-      return { path: p, meta: c, isFolder: Boolean(c.folder) }
-    }) as TraverseItem[]
-
-    if (data.next) {
-      buf[path] = (buf[path] ?? []).concat(items)
-
-      // Append next page task to the pool at the end
-      const i = pool.length
-      pool[i] = genTask(i, path, data.next)
-    } else {
-      const allItems = (buf[path] ?? []).concat(items)
-      if (buf[path]) {
-        delete buf[path]
+      if (!Array.isArray(data?.folder?.value)) throw new Error('Path is not folder')
+      for (const child of data.folder.value) {
+        if (child.name.toLowerCase() === '.password') continue
+        if (++count > 1000) throw new Error('Select a smaller folder (at most 1000 entries per download).')
+        const childPath = `${current === '/' ? '' : current}/${encodeURIComponent(child.name)}`
+        const isFolder = Boolean(child.folder)
+        if (isFolder) queue.push(childPath)
+        yield { path: childPath, meta: child, isFolder }
       }
-
-      allItems
-        .filter(item => item.isFolder)
-        .forEach(item => {
-          // Append new folder tasks to the pool at the end
-          const i = pool.length
-          pool[i] = genTask(i, item.path)
-        })
-      yield* allItems
-    }
+      next = data.next
+    } while (next)
   }
 }
