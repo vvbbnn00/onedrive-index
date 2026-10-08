@@ -15,10 +15,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let siteMapList: any[]
   if (!exists) {
     siteMapList = []
-    generateSitemap().then(() => {})
+    generateSitemap().catch(() => { console.error('Unable to refresh sitemap.') })
   } else {
     try {
-      siteMapList = JSON.parse(siteMapData as string)?.data
+      const parsed = JSON.parse(siteMapData as string)?.data
+      siteMapList = Array.isArray(parsed) ? parsed : []
     } catch (e) {
       siteMapList = []
     }
@@ -43,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModifiedDateTime = null
       }
       return {
-        url: `${baseUrl}${item.path}`,
+        url: `${baseUrl}${item.path.split('/').map(encodeURIComponent).join('/')}`,
         lastModified: lastModifiedDateTime,
         changeFrequency: 'daily',
         priority: 0.8
