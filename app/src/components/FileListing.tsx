@@ -24,16 +24,16 @@ import {layouts} from './SwitchLayout'
 import Loading, {LoadingIcon} from './Loading'
 import FourOhFour from './FourOhFour'
 import Auth from './Auth'
-import TextPreview from './previews/TextPreview'
-import MarkdownPreview from './previews/MarkdownPreview'
-import CodePreview from './previews/CodePreview'
-import OfficePreview from './previews/OfficePreview'
-import AudioPreview from './previews/AudioPreview'
-import VideoPreview from './previews/VideoPreview'
-import PDFPreview from './previews/PDFPreview'
-import URLPreview from './previews/URLPreview'
-import ImagePreview from './previews/ImagePreview'
-import DefaultPreview from './previews/DefaultPreview'
+const TextPreview = dynamic(() => import('./previews/TextPreview'))
+const MarkdownPreview = dynamic(() => import('./previews/MarkdownPreview'))
+const CodePreview = dynamic(() => import('./previews/CodePreview'))
+const OfficePreview = dynamic(() => import('./previews/OfficePreview'))
+const AudioPreview = dynamic(() => import('./previews/AudioPreview'))
+const VideoPreview = dynamic(() => import('./previews/VideoPreview'))
+const PDFPreview = dynamic(() => import('./previews/PDFPreview'))
+const URLPreview = dynamic(() => import('./previews/URLPreview'))
+const ImagePreview = dynamic(() => import('./previews/ImagePreview'))
+const DefaultPreview = dynamic(() => import('./previews/DefaultPreview'))
 import {PreviewContainer} from './previews/Containers'
 
 import FolderListLayout from './FolderListLayout'
@@ -168,14 +168,14 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
 
     if (error) {
         // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page
-        if (error.status === 403) {
+        if (error.status === 403 && !error.message?.needAuth) {
             router.push('/setup/step-1')
             return <div/>
         }
 
         return (
             <PreviewContainer>
-                {error.status === 401 ? <Auth authTokenPath={error.message?.authPath}/> :
+                {(error.status === 401 || error.message?.needAuth) ? <Auth authTokenPath={error.message?.authPath}/> :
                     <FourOhFour errorMsg={JSON.stringify(error.message)}/>}
             </PreviewContainer>
         )
@@ -207,7 +207,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
         const headFile = folderChildren.find(c => c.name.toLowerCase() === 'head.md')
 
         // Filtered file list helper
-        const getFiles = () => folderChildren.filter(c => !c.folder && c.name !== '.password')
+        const getFiles = () => folderChildren.filter(c => !c.folder && c.name.toLowerCase() !== '.password')
 
         // File selection
         const genTotalSelected = (selected: { [key: string]: boolean }) => {
@@ -267,9 +267,9 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
                             id: toastId,
                         })
                     })
-                    .catch(() => {
+                    .catch(error => {
                         setTotalGenerating(false)
-                        toast.error(t('Failed to download selected files.'), {id: toastId})
+                        toast.error(error.message || t('Failed to download selected files.'), {id: toastId})
                     })
             }
         }
@@ -322,9 +322,9 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
                     setFolderGenerating({...folderGenerating, [id]: false})
                     toast.success(t('Finished downloading folder.'), {id: toastId})
                 })
-                .catch(() => {
+                .catch(error => {
                     setFolderGenerating({...folderGenerating, [id]: false})
-                    toast.error(t('Failed to download folder.'), {id: toastId})
+                    toast.error(error.message || t('Failed to download folder.'), {id: toastId})
                 })
         }
 
@@ -348,9 +348,9 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
             <>
                 <Toaster/>
 
-                {(renderedData.head?.length > 0 || headFile) && (
+                {(renderedData?.head?.length > 0 || headFile) && (
                     <div className="mb-4">
-                        <MarkdownPreview file={headFile} path={path} standalone={false} setContent={renderedData.head}/>
+                        <MarkdownPreview file={headFile} path={path} standalone={false} setContent={renderedData?.head}/>
                     </div>
                 )}
 
@@ -391,10 +391,10 @@ const FileListing: FC<{ query?: ParsedUrlQuery, renderedData?: any }> = ({query,
                     </div>
                 )}
 
-                {(renderedData.readme?.length > 0 || readmeFile) && (
+                {(renderedData?.readme?.length > 0 || readmeFile) && (
                     <div className="mt-4">
                         <MarkdownPreview file={readmeFile} path={path} standalone={false}
-                                         setContent={renderedData.readme}/>
+                                         setContent={renderedData?.readme}/>
                     </div>
                 )}
             </>

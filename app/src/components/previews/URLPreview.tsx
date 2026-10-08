@@ -17,7 +17,14 @@ const parseDotUrl = (content: string): string | undefined => {
     return content
         .split('\n')
         .find(line => line.startsWith('URL='))
-        ?.split('=')[1]
+        ?.slice(4).trim()
+}
+
+const safeUrl = (content: string): string => {
+    try {
+        const url = new URL(parseDotUrl(content) ?? '')
+        return ['https:', 'http:'].includes(url.protocol) ? url.href : ''
+    } catch { return '' }
 }
 
 const TextPreview = ({file, hashedToken}) => {
@@ -51,7 +58,7 @@ const TextPreview = ({file, hashedToken}) => {
             <DownloadBtnContainer>
                 <div className="flex flex-wrap justify-center gap-2">
                     <DownloadButton
-                        onClickCallback={() => window.open(parseDotUrl(content) ?? '')}
+                        onClickCallback={() => window.open(safeUrl(content), '_blank', 'noopener,noreferrer')}
                         btnColor="red"
                         btnText={t('Open URL')}
                         btnIcon="external-link-alt"

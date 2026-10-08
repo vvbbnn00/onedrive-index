@@ -11,7 +11,9 @@ import {Fragment, useState} from 'react'
 import {useTranslation} from 'next-i18next'
 
 import siteConfig from '../../config/site.config'
-import SearchModal from './SearchModal'
+import dynamic from 'next/dynamic'
+import BrandIcon from './BrandIcon'
+const SearchModal = dynamic(() => import('./SearchModal'))
 import SwitchLang from './SwitchLang'
 import useDeviceOS from '../utils/useDeviceOS'
 
@@ -48,7 +50,7 @@ const Navbar = () => {
             className="sticky top-0 z-[100] border-b border-gray-900/10 bg-white backdrop-blur-md dark:border-gray-500/30 dark:bg-gray-900 !bg-opacity-50">
             <Toaster/>
 
-            <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen}/>
+            {searchOpen && <SearchModal searchOpen={searchOpen} setSearchOpen={setSearchOpen}/>}
 
             <div className="mx-auto flex w-full items-center justify-between space-x-4 px-4 py-1">
                 <Link href="/" passHref
@@ -87,7 +89,7 @@ const Navbar = () => {
                                 rel="noopener noreferrer"
                                 className="flex items-center space-x-2 hover:opacity-80 dark:text-white"
                             >
-                                <FontAwesomeIcon icon={['fab', l.name.toLowerCase() as IconName]}/>
+                                <BrandIcon name={l.name}/>
                                 <span className="hidden text-sm font-medium md:inline-block">
                   {
                       // Append link name comments here to add translations

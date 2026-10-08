@@ -1,6 +1,6 @@
 import type { OdFileObject } from '../../types'
 
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 
@@ -22,6 +22,8 @@ import 'plyr-react/plyr.css'
 import BasicInfoPanel from './BasicInfoPanel'
 import dynamic from 'next/dynamic'
 
+const ReactPlyr = dynamic(() => import('plyr-react'), { ssr: false })
+
 const VideoPlayer: FC<{
   videoName: string
   videoUrl: string
@@ -32,49 +34,52 @@ const VideoPlayer: FC<{
   isFlv: boolean
   mpegts: any
 }> = ({ videoName, videoUrl, width, height, thumbnail, subtitle, isFlv, mpegts }) => {
-  const ReactPlyr = dynamic(() => import('plyr-react'), { ssr: false })
+  const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Really really hacky way to inject subtitles as file blobs into the video element
-    axios
-      .get(subtitle, { responseType: 'blob' })
-      .then(resp => {
-        const track = document.querySelector('track')
-        track?.setAttribute('src', URL.createObjectURL(resp.data))
-      })
-      .catch(() => {
-        console.log('Could not load subtitle.')
-      })
-
-    if (isFlv) {
-      const loadFlv = () => {
-        // Really hacky way to get the exposed video element from Plyr
-        const video = document.getElementById('plyr')
-        const flv = mpegts.createPlayer({ url: videoUrl, type: 'flv' })
+    const controller = new AbortController()
+    let active = true
+    let subtitleUrl: string | undefined
+    let flv: any
+    const attach = () => {
+      const video = container.current?.querySelector('video')
+      if (!video || !active) return
+      if (subtitleUrl) video.querySelector('track')?.setAttribute('src', subtitleUrl)
+      if (isFlv && mpegts && !flv) {
+        flv = mpegts.createPlayer({ url: videoUrl, type: 'flv' })
         flv.attachMediaElement(video)
         flv.load()
       }
-      loadFlv()
+    }
+    const observer = new MutationObserver(attach)
+    if (container.current) observer.observe(container.current, { childList: true, subtree: true })
+    attach()
+    axios.get(subtitle, { responseType: 'blob', signal: controller.signal })
+      .then(resp => { if (active) { subtitleUrl = URL.createObjectURL(resp.data); attach() } })
+      .catch(() => {})
+    return () => {
+      active = false
+      controller.abort()
+      observer.disconnect()
+      if (flv) flv.destroy()
+      if (subtitleUrl) URL.revokeObjectURL(subtitleUrl)
     }
   }, [videoUrl, isFlv, mpegts, subtitle])
 
   // Common plyr configs, including the video source and plyr options
-  const plyrSource = {
+  const plyrSource = useMemo(() => ({
     type: 'video',
     title: videoName,
     poster: thumbnail,
-    tracks: [{ kind: 'captions', label: videoName, src: '', default: true }]
-  }
-  const plyrOptions: Plyr.Options = {
+    tracks: [{ kind: 'captions', label: videoName, src: '', default: true }],
+    ...(!isFlv ? { sources: [{ src: videoUrl }] } : {})
+  }), [videoName, thumbnail, isFlv, videoUrl])
+  const plyrOptions: Plyr.Options = useMemo(() => ({
     ratio: `${width ?? 16}:${height ?? 9}`,
     fullscreen: { iosNative: true }
-  }
-  if (!isFlv) {
-    // If the video is not in flv format, we can use the native plyr and add sources directly with the video URL
-    plyrSource['sources'] = [{ src: videoUrl }]
-  }
+  }), [width, height])
+  return <div ref={container}><ReactPlyr id="plyr" source={plyrSource as any} options={plyrOptions} /></div>
 
-  return <ReactPlyr id="plyr" source={plyrSource as any} options={plyrOptions} />
 }
 
 const VideoPreview: FC<{ file: OdFileObject, hashedToken?: string }> = ({ file, hashedToken }) => {
@@ -120,6 +125,7 @@ const VideoPreview: FC<{ file: OdFileObject, hashedToken?: string }> = ({ file, 
             <Loading loadingText={t('Loading FLV extension...')} />
           ) : (
             <VideoPlayer
+              key={videoUrl}
               videoName={file.name}
               videoUrl={videoUrl}
               width={file.video?.width}

@@ -61,16 +61,11 @@ import {
   faMoon,
   faLock
 } from '@fortawesome/free-solid-svg-icons'
-import * as Icons from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faMarkdown } from '@fortawesome/free-brands-svg-icons'
 
 import type { AppProps } from 'next/app'
 import NextNProgress from 'nextjs-progressbar'
 import { appWithTranslation } from 'next-i18next'
-
-// import all brand icons with tree-shaking so all icons can be referenced in the app
-const iconList = Object.keys(Icons)
-  .filter(k => k !== 'fab' && k !== 'prefix')
-  .map(icon => Icons[icon])
 
 library.add(
   faFileImage,
@@ -121,7 +116,8 @@ library.add(
   faPen,
   faMoon,
   faLock,
-  ...iconList
+  faGithub,
+  faMarkdown
 )
 
 function MyApp({ Component, pageProps }: AppProps) {

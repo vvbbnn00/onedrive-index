@@ -14,7 +14,7 @@ export async function fetcher([url, token]: [url: string, token?: string]): Prom
                 : axios.get(url))
         ).data
     } catch (err: any) {
-        throw {status: err.response.status, message: err.response.data}
+        throw {status: err.response?.status ?? 500, message: err.response?.data ?? { error: 'Network request failed.' }}
     }
 }
 
@@ -26,13 +26,12 @@ export async function fetcher([url, token]: [url: string, token?: string]): Prom
  */
 export function useProtectedSWRInfinite(path: string = '', renderedData?) {
     async function renderedDataFetcher([url, index]: [url: string, index?: Number]): Promise<any> {
-        if (index == 0 && renderedData) return renderedData;
         try {
             return (
                 await (axios.get(url))
             ).data
         } catch (err: any) {
-            throw {status: err.response.status, message: err.response.data}
+            throw {status: err.response?.status ?? 500, message: err.response?.data ?? { error: 'Network request failed.' }}
         }
     }
 
@@ -44,18 +43,19 @@ export function useProtectedSWRInfinite(path: string = '', renderedData?) {
      */
     function getNextKey(pageIndex: number, previousPageData: OdAPIResponse): (string | Number | null)[] | null {
         // Reached the end of the collection
-        if (previousPageData && !previousPageData.folder) return null
+        if (previousPageData && (!previousPageData.folder || !previousPageData.next)) return null
 
         // First page with no prevPageData
         if (pageIndex === 0) return [`/api/?path=${path}`, pageIndex]
 
         // Add nextPage token to API endpoint
-        return [`/api/?path=${path}&next=${previousPageData.next}`, pageIndex]
+        return [`/api/?path=${path}&next=${encodeURIComponent(previousPageData.next!)}`, pageIndex]
     }
 
     // Disable auto-revalidate, these options are equivalent to useSWRImmutable
     // https://swr.vercel.app/docs/revalidation#disable-automatic-revalidations
     const revalidationOptions = {
+        fallbackData: renderedData ? [renderedData] : undefined,
         revalidateIfStale: false,
         revalidateOnFocus: false,
         revalidateOnReconnect: true,

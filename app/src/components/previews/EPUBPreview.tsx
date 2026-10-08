@@ -30,11 +30,11 @@ const EPUBPreview: FC<{ file: OdFileObject, hashedToken?: string }> = ({file, ha
     const fixEpub = rendition => {
         const spineGet = rendition.book.spine.get.bind(rendition.book.spine)
         rendition.book.spine.get = function (target: string) {
-            const targetStr = target as string
+            let targetStr = target
             let t = spineGet(target)
-            while (t == null && targetStr.startsWith('../')) {
-                target = targetStr.substring(3)
-                t = spineGet(target)
+            while (t == null && typeof targetStr === 'string' && targetStr.startsWith('../')) {
+                targetStr = targetStr.substring(3)
+                t = spineGet(targetStr)
             }
             return t
         }
