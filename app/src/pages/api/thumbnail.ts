@@ -1,3 +1,4 @@
+import { isPasswordFile } from '../../utils/isPasswordFile'
 import type {OdThumbnail} from '../../types'
 
 import {posix as pathPosix} from 'path'
@@ -46,7 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
     }
 
-    const {code, message, password, authPath} = await checkAuthRoute(cleanPath, accessToken, '')
+    const {code, message, password, authPath, needAuth} = await checkAuthRoute(cleanPath, accessToken, '')
+    res.setHeader('Cache-Control', needAuth ? 'private, no-store' : apiConfig.cacheControlHeader)
     // Status code other than 200 means user has not authenticated yet
     if (code !== 200) {
         if (code !== 401) {
@@ -65,13 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
 
-    // If message is empty, then the path is not protected.
-    // Conversely, protected routes are not allowed to serve from cache.
-    if (message !== '') {
-        res.setHeader('Cache-Control', 'no-cache')
-        res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
-    }
-
     const requestPath = encodePath(cleanPath)
     // Handle response from OneDrive API
     const requestUrl = `${apiConfig.driveApi}/root${requestPath}`
@@ -87,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
         }).then(res => res.data)
 
-        if (filename === '.password') {
+        if (isPasswordFile(filename)) {
             res.status(400).json({error: 'The item is protected.'})
             return
         }
@@ -99,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(400).json({error: "The item doesn't have a valid thumbnail."})
         }
     } catch (error: any) {
-        res.status(error?.response?.status).json({error: error?.response?.data?.error ?? 'Internal server error.'})
+        res.status(error?.response?.status ?? 500).json({error: error?.response?.data?.error ?? 'Internal server error.'})
     }
     return
 }

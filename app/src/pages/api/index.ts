@@ -1,3 +1,5 @@
+import { getNextToken } from '../../utils/driveItems'
+import { isPasswordFile } from '../../utils/isPasswordFile'
 import { posix as pathPosix } from 'path'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -36,7 +38,8 @@ const basePath = pathPosix.resolve('/', siteConfig.baseDirectory)
  * @returns Absolute path of the file inside OneDrive
  */
 export function encodePath(path: string): string {
-  let encodedPath = pathPosix.join(basePath, path)
+  // Resolve within the shared root before joining the configured OneDrive base.
+  let encodedPath = pathPosix.join(basePath, pathPosix.resolve('/', path))
   if (encodedPath === '/' || encodedPath === '') {
     return ''
   }
@@ -285,7 +288,12 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
   }
 
   // Besides normalizing and making absolute, trailing slashes are trimmed
-  const cleanPath = decodeURIComponent(pathPosix.resolve('/', pathPosix.normalize(path)).replace(/\/$/, ''))
+  let cleanPath: string
+  try {
+    cleanPath = pathPosix.resolve('/', decodeURIComponent(path)).replace(/\/$/, '')
+  } catch {
+    return false
+  }
 
   // Path shoudn't cotain :
   if (cleanPath.includes(':')) {
@@ -328,10 +336,10 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
 
     if ('folder' in identityData) {
       let folderData: any
-      await Promise.all([
-        readme = await getFileTextFromCache(encodePath(cleanPath + '/readme.md')),
-        head = await getFileTextFromCache(encodePath(cleanPath + '/head.md')),
-        folderData = (await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
+      const results = await Promise.all([
+        getFileTextFromCache(encodePath(cleanPath + '/readme.md')),
+        getFileTextFromCache(encodePath(cleanPath + '/head.md')),
+        axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
           headers: { Authorization: `Bearer ${accessToken}` },
           params: {
             ...{
@@ -341,7 +349,10 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
             ...(next ? { $skipToken: next } : {}),
             ...(sort ? { $orderby: sort } : {})
           }
-        })).data])
+        }).then(response => response.data)])
+      readme = results[0] ?? ''
+      head = results[1] ?? ''
+      folderData = results[2]
 
       delete folderData['@odata.context']
       folderData.value = folderData?.value?.map(item => {
@@ -349,8 +360,8 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
         item.id = encryptData(item.id)
 
         // If filename is .password, should hide the quickXorHash and the size, add "Protected" tag
-        if (item.name === '.password') {
-          delete item.file.hashes.quickXorHash
+        if (isPasswordFile(item.name)) {
+          if (item.file) delete item.file.hashes
           item.size = 0
           item.protected = true
         }
@@ -359,9 +370,7 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
       })
 
       // Extract next page token from full @odata.nextLink
-      const nextPage = folderData['@odata.nextLink']
-        ? folderData['@odata.nextLink'].match(/&\$skiptoken=(.+)/i)[1]
-        : null
+      const nextPage = getNextToken(folderData['@odata.nextLink'])
 
       // Return paging token if specified
       if (nextPage) {
@@ -376,10 +385,11 @@ export async function getFileList(query: { path: any; next?: any; sort?: any }) 
     identityData.id = encryptData(identityData.id)
 
     // If filename is .password, should hide the quickXorHash and the size
-    if (identityData.name === '.password') {
-      delete identityData.file.hashes.quickXorHash
+    if (isPasswordFile(identityData.name)) {
+      if (identityData.file) delete identityData.file.hashes
       identityData.size = 0
       identityData.protected = true
+      delete identityData.odpt
     }
 
     return { file: identityData, title: identityData.name }
@@ -473,6 +483,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     needAuth,
     password
   } = await checkAuthRoute(cleanPath, accessToken, '')
+  if (needAuth) {
+    res.setHeader('Cache-Control', 'private, no-store')
+    res.setHeader('X-Need-NoCache', 'yes')
+  }
   // Status code other than 200 means user has not authenticated yet
   if (code !== 200 && code !== 401) {
     res.status(code).json({ error: message, authPath, needAuth })
@@ -489,13 +503,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (password !== passKey && password !== null && needAuth) {
     res.status(401).json({ error: 'Password incorrect.', authPath, needAuth })
     return
-  }
-
-  // If message is empty, then the path is not protected.
-  // Conversely, protected routes are not allowed to serve from cache.
-  if (message !== '') {
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
   }
 
   console.info(`[${now()}][${needAuth ? 'PRIVATE' : 'PUBLIC'}][Path:${cleanPath}] Access.`)
@@ -541,8 +548,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         item.id = encryptData(item.id)
 
         // If filename is .password, should hide the quickXorHash and the size, add "Protected" tag
-        if (item.name === '.password') {
-          delete item.file.hashes.quickXorHash
+        if (isPasswordFile(item.name)) {
+          if (item.file) delete item.file.hashes
           item.size = 0
           item.protected = true
           delete item.odpt
@@ -552,9 +559,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
 
       // Extract next page token from full @odata.nextLink
-      const nextPage = folderData['@odata.nextLink']
-        ? folderData['@odata.nextLink'].match(/&\$skiptoken=(.+)/i)[1]
-        : null
+      const nextPage = getNextToken(folderData['@odata.nextLink'])
 
       // Return paging token if specified
       if (nextPage) {
@@ -577,10 +582,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     identityData.id = encryptData(identityData.id)
 
     // If filename is .password, should hide the quickXorHash and the size
-    if (identityData.name === '.password') {
-      delete identityData.file.hashes.quickXorHash
+    if (isPasswordFile(identityData.name)) {
+      if (identityData.file) delete identityData.file.hashes
       identityData.size = 0
       identityData.protected = true
+      delete identityData.odpt
     }
 
     res.status(200).json({ file: identityData })

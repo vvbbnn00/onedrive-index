@@ -66,6 +66,7 @@ export type OdSearchResult = Array<{
 }>
 // API response object for /api/item/?id={id}. This is primarily used for determining the path of the driveItem by ID.
 export type OdDriveItem = {
+  path: string
   '@odata.etag': string
   id: string
   name: string

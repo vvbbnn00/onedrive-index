@@ -6,7 +6,7 @@ import {encodePath, getAccessToken} from "./index";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const sessionManager = new Session(req, res);
-    const session = await sessionManager.getSession();
+    res.setHeader('Cache-Control', 'private, no-store');
 
     if (req.method !== 'POST' && req.method !== 'DELETE') {
         res.status(405).json({error: 'Invalid request method.'})
@@ -19,8 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
     }
 
-    const {token, path} = req.body;
-    if (!token || !path) {
+    const {token, path} = req.body ?? {};
+    if (typeof token !== 'string' || typeof path !== 'string' || !token || !path) {
         res.status(400).json({error: 'Invalid request body.'})
         return
     }
@@ -78,6 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             console.warn('axios.get .password', JSON.stringify(error.message))
             res.status(500).json({error: 'Internal server error.'})
         }
+        return
     }
 
     // Compare the two tokens
@@ -86,6 +87,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
     }
 
+    const session = await sessionManager.getSession(true);
     session.passKeys = session?.passKeys || {}
     session.passKeys[path] = token
     await sessionManager.updateSession(session);

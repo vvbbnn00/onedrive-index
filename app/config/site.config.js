@@ -3,15 +3,19 @@
  * the title, used Google fonts, site icons, contact info, etc.
  */
 
-let protectedRoutes = process.env.PROTECTED_ROUTES || "[]"
-let protectedRoutesList = []
+const rawProtectedRoutes = process.env.PROTECTED_ROUTES || '[]'
+let protectedRoutesList
 try {
-    protectedRoutesList = JSON.parse(protectedRoutes)
-    if (!Array.isArray(protectedRoutesList)) {
-        protectedRoutesList = []
-    }
-} catch (e) {
-    protectedRoutesList = []
+    const values = JSON.parse(rawProtectedRoutes)
+    if (!Array.isArray(values)) throw new Error()
+    protectedRoutesList = [...new Set(values.map(value => {
+        if (typeof value !== 'string' || !value.trim() || /[\\:\x00-\x1f]/.test(value)) throw new Error()
+        const parts = value.split('/').filter(Boolean)
+        if (parts.some(part => part === '.' || part === '..')) throw new Error()
+        return '/' + (parts.length ? parts.join('/').toLowerCase() + '/' : '')
+    }))]
+} catch {
+    throw new Error('PROTECTED_ROUTES must be a JSON array of valid directory paths.')
 }
 
 module.exports = {
@@ -36,7 +40,7 @@ module.exports = {
 
     // [OPTIONAL] This represents the maximum number of items that one directory lists, pagination supported.
     // Do note that this is limited up to 200 items by the upstream OneDrive API.
-    maxItems: process.env.MAX_ITEMS || 100,
+    maxItems: Math.min(200, Math.max(1, Math.floor(Number(process.env.MAX_ITEMS) || 100))),
 
     // [OPTIONAL] We use Google Fonts natively for font customisations.
     // You can check and generate the required links and names at https://fonts.google.com.
@@ -77,5 +81,5 @@ module.exports = {
     datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
 
     // Max age for SSG page, default is 120 seconds
-    cacheMaxAge: process.env.CACHE_MAX_AGE || 120,
+    cacheMaxAge: Math.max(1, Math.floor(Number(process.env.CACHE_MAX_AGE) || 120)),
 }

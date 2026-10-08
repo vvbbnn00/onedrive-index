@@ -1,3 +1,5 @@
+import { isPasswordFile } from '../../utils/isPasswordFile'
+import { contentDisposition } from '../../utils/contentDisposition'
 import {posix as pathPosix} from 'path'
 
 import type {NextApiRequest, NextApiResponse} from 'next'
@@ -42,14 +44,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
     }
     // If the path is not a valid path, return 400
-    if (typeof path !== 'string') {
+    if (typeof path !== 'string' || typeof odpt !== 'string') {
         res.status(400).json({error: 'Path query invalid.'})
         return
     }
     const cleanPath = pathPosix.resolve('/', pathPosix.normalize(path))
 
+    if (cleanPath.includes(':')) { res.status(400).json({error: 'Path invalid.'}); return }
+
     // Handle protected routes authentication
-    const odTokenHeader = (req.headers['od-protected-token'] as string) ?? odpt
+    const header = req.headers['od-protected-token'] ?? odpt
+    const odTokenHeader = typeof header === 'string' ? header : ''
 
     const {code, message, authPath, needAuth, password} = await checkAuthRoute(cleanPath, accessToken, '')
     // Status code other than 200 means user has not authenticated yet
@@ -60,8 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // If message is empty, then the path is not protected.
     // Conversely, protected routes are not allowed to serve from cache.
-    if (message !== '') {
-        res.setHeader('Cache-Control', 'no-cache')
+    if (needAuth) {
+        res.setHeader('Cache-Control', 'private, no-store')
         res.setHeader('X-Need-NoCache', 'yes')  // Add an extra header
     }
 
@@ -104,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // For security reasons, .password files cant be downloaded.
-        if (data?.name === '.password') {
+        if (isPasswordFile(data?.name)) {
             res.status(403).json({error: 'For security reasons, this file can\'t be downloaded.'})
             return
         }
@@ -115,9 +120,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const {headers, data: stream} = await axios.get(data['@microsoft.graph.downloadUrl'] as string, {
                     responseType: 'stream',
                 })
-                headers['Cache-Control'] = cacheControlHeader
+                // Axios response headers are lower-case. Replace the upstream
+                // cache policy without leaving a second, differently cased copy.
+                headers['cache-control'] = needAuth ? 'private, no-store' : cacheControlHeader
                 // If already has attachment header in response, don't overwrite it
-                headers['Content-Disposition'] = res.getHeader('content-disposition') ?? `attachment; filename="${data['name']}"` as string
+                headers['content-disposition'] = res.getHeader('content-disposition') ?? contentDisposition(data.name)
                 // Send data stream as response
                 res.writeHead(200, headers as AxiosResponseHeaders)
                 stream.pipe(res)
