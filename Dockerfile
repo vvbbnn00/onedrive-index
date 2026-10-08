@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -14,9 +14,6 @@ RUN \
   elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
   else echo "Lockfile not found." && exit 1; \
   fi
-
-# downgrading sharp to 0.32.6 to fix the error "Cannot find module 'sharp'"
-RUN npm install sharp@0.32.6 --ignore-scripts --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
